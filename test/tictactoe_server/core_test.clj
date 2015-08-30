@@ -1,7 +1,7 @@
 (ns tictactoe-server.core-test
-  (:require [clojure.test :refer :all]
+  (:require [speclj.core :refer :all]
             [tictactoe-server.core :refer :all]))
 
-(deftest a-test
-  (testing "FIXME, I fail."
-    (is (= 0 1))))
+(describe "a-test"
+  (it "should pass"
+    (should= 1 1)))
