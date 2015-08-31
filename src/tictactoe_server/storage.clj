@@ -1,14 +1,7 @@
-(ns tictactoe-server.storage
-  (:require [cheshire.core :as json])
-  (:import [me.hkgumbs.tictactoe.main.java.board SquareBoard]))
+(ns tictactoe-server.storage)
 
-(def game (atom {}))
+(def cache (atom {}))
 
-(defn create [{size :size}]
-  (json/generate-string
-  (reset!
-    game
-    {:board (.toString (SquareBoard. size))
-     :game-id 0})))
-
-(defn retrieve [id] @game)
+(defn create [object] (reset! cache object))
+(defn retrieve [] @cache)
+(defn modify [f] (swap! cache f))

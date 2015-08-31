@@ -4,8 +4,11 @@
             [cheshire.core :as json]))
 
 (describe "Storage"
-  (it "keeps track of game by id"
-    (let [serialized-game (storage/create {:size 2})
-          {game-id :game-id} (json/decode serialized-game true)]
-      (should (.contains serialized-game "\"board\":\"----\""))
-      (should= "----" (:board (storage/retrieve game-id))))))
+  (it "keeps track of one arbitrary objects"
+    (storage/create {:hello 2})
+    (should= {:hello 2} (storage/retrieve)))
+
+  (it "can update objects by key"
+    (storage/create {:size 3})
+    (storage/modify #(assoc % :size 4))
+    (should= {:size 4} (storage/retrieve))))
