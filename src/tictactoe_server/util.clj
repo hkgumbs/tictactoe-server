@@ -1,6 +1,7 @@
 (ns tictactoe-server.util
   (:require [webserver.response :as response]
-            [cheshire.core :as json])
+            [cheshire.core :as json]
+            [cheshire.generate :as generate])
   (:import [me.hkgumbs.tictactoe.main.java.board
             SquareBoard Board$Mark]))
 
@@ -17,6 +18,9 @@
         mark (marks mark-string)]
     [(if mark (.add board i mark) board) (inc i)]))
 
+(defn- encode-board [board generator]
+  (.writeString generator (.toString board)))
+
 (defn decode-square-board [encoded-board size]
   (let [marks {"X" Board$Mark/X "O" Board$Mark/O}]
     (first (reduce add-mark [(SquareBoard. 3) 0] encoded-board))))
@@ -30,3 +34,5 @@
       (if (empty? p) result
         (let [[p-name p-value] (.split (first p) "=")]
           (recur (rest p) (set-value result p-name p-value))))) {}))
+
+(generate/add-encoder SquareBoard encode-board)

@@ -15,6 +15,5 @@
     (.run (NaiveChoice.) board)))
 
 (defmethod app/route "/move" [request]
-  (let [{position :position} (util/parse-parameters (:parameters request))]
-    (doall (map update-storage [position (get-cpu-move)])))
-  (util/respond))
+  (update-storage (:position (util/parse-parameters (:parameters request))))
+  (util/respond (select-keys (update-storage (get-cpu-move)) [:board])))

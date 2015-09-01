@@ -9,11 +9,9 @@
 (describe "Request to /move"
   (it "adds piece to board"
     (socket/connect "/new" "size=3")
-    (socket/validate-body (socket/connect "/move" "position=4") {})
     (socket/validate-body
-      (socket/connect "/status" "")
-      {:status "waiting"
-       :board (.toString (-> (SquareBoard. 3)
+      (socket/connect "/move" "position=4")
+      {:board (.toString (-> (SquareBoard. 3)
                              (.add 4 Board$Mark/X)
                              (.add 0 Board$Mark/O)
                              (.toString)))})))
