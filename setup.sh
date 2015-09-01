@@ -1,6 +1,11 @@
-rm lib/*
-rm -r lib
+function get-latest {
+    curl -s -L https://github.com/hkgumbs/$1/releases/latest \
+        | egrep -o "/hkgumbs/$1/releases/download/v.*\.jar" \
+        | wget --base=http://github.com/ -i -
+}
+
 mkdir lib
+rm lib/*
 cd lib
-wget https://github.com/hkgumbs/webserver-clojure/releases/download/v0.1.0/webserver-0.1.0-SNAPSHOT-standalone.jar
-wget https://github.com/hkgumbs/tictactoe-java/releases/download/v0.1.0/tictactoe-java.jar
+get-latest webserver-clojure
+get-latest tictactoe-java
