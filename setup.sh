@@ -1,11 +1,6 @@
-if mkdir checkouts jcheckouts; then
-    cd checkouts
-    git clone git@github.com:hkgumbs/webserver-clojure.git
-    cd ../jcheckouts
-    git clone git@github.com:hkgumbs/tictactoe-java.git
-else
-    cd checkouts/webserver-clojure
-    git pull origin master
-    cd ../../jcheckouts/tictactoe-java
-    git pull origin master
-fi
+rm lib/*
+rm -r lib
+mkdir lib
+cd lib
+wget https://github.com/hkgumbs/webserver-clojure/releases/download/v0.1.0/webserver-0.1.0-SNAPSHOT-standalone.jar
+wget https://github.com/hkgumbs/tictactoe-java/releases/download/v0.1.0/tictactoe-java.jar
