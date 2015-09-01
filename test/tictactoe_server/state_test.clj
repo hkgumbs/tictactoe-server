@@ -3,8 +3,7 @@
             [tictactoe-server.app]
             [tictactoe-server.state]
             [tictactoe-server.mock-socket :as socket])
-  (:import [me.hkgumbs.tictactoe.main.java.board
-            SquareBoard Board$Mark]))
+  (:import [me.hkgumbs.tictactoe.main.java.board SquareBoard]))
 
 (describe "Request to /new"
   (it "starts a new game"

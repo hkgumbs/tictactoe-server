@@ -17,4 +17,4 @@
 (defmethod app/route "/move" [request]
   (let [{position :position} (util/parse-parameters (:parameters request))]
     (doall (map update-storage [position (get-cpu-move)])))
-  (util/respond ""))
+  (util/respond))

@@ -12,7 +12,7 @@
   (let [parameters (util/parse-parameters (:parameters request))]
     (storage/create
       {:board (get-board parameters) :turn Board$Mark/X})
-    (util/respond "")))
+    (util/respond)))
 
 (defmethod app/route "/status" [_]
   (let [{board :board} (storage/retrieve)]
