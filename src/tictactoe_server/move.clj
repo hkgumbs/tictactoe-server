@@ -1,19 +1,28 @@
 (ns tictactoe-server.move
-  (:require [tictactoe-server.app :as app]
+  (:require [webserver.response :as response]
+            [tictactoe-server.app :as app]
             [tictactoe-server.storage :as storage]
             [tictactoe-server.util :as util])
-  (:import [me.hkgumbs.tictactoe.main.java.player NaiveChoice]))
+  (:import [me.hkgumbs.tictactoe.main.java.player Algorithm]))
 
 (defn- update-storage [position]
-  (storage/modify
-    (fn [{:keys [board turn]}]
-      {:board (.add board position turn)
-       :turn (.other turn)})))
+  (let [{:keys [board turn]} (storage/retrieve)]
+    (storage/modify
+      #(into % {:board (.add board position turn) :turn (.other turn)}))))
 
 (defn- get-cpu-move []
-  (let [{board :board} (storage/retrieve)]
-    (.run (NaiveChoice.) board)))
+  (let [{:keys [algorithm board]} (storage/retrieve)]
+    (.run ^Algorithm algorithm board)))
+
+(defn valid-position? [position]
+  (and
+    (integer? position)
+    (-> (storage/retrieve) :board .getEmptySpaceIds (.contains position))))
 
 (defmethod app/route "/move" [request]
-  (update-storage (:position (util/parse-parameters (:parameters request))))
-  (util/respond (select-keys (update-storage (get-cpu-move)) [:board])))
+  (let [{position :position} (util/parse-parameters (:parameters request))]
+    (if (valid-position? position)
+      (do (update-storage position)
+          (util/respond
+            (select-keys (update-storage (get-cpu-move)) [:board])))
+      (response/make 400))))
