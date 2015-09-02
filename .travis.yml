@@ -1,2 +1,6 @@
 language: clojure
-script: lein spec
+script:
+  - bash setup.sh
+  - lein spec
+jdk:
+  - oraclejdk8
