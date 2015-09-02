@@ -3,10 +3,11 @@
   (:require [webserver.app :as app]
             [tictactoe-server.app :as backing-app]
             [tictactoe-server.new]
-            [tictactoe-server.move]))
+            [tictactoe-server.move]
+            [tictactoe-server.util :as util]))
 
-(defn -main [& args]
-  (let [server (java.net.ServerSocket. 5000)
+(defn -main [[port]]
+  (let [server (java.net.ServerSocket. (util/parse-int port 5000))
         {:keys [valid-request-handler]} backing-app/responder]
     (println "Serving Tic Tac Toe over HTTP...")
     (while (not (.isClosed server))

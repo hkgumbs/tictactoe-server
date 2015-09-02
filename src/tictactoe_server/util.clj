@@ -25,8 +25,11 @@
   (let [marks {"X" Board$Mark/X "O" Board$Mark/O}]
     (first (reduce add-mark [(SquareBoard. 3) 0] encoded-board))))
 
+(defn parse-int [number default]
+  (try (Integer. ^String number) (catch Exception _ default)))
+
 (defn- set-value [m k v]
-  (assoc m (keyword k) (try (Integer. ^String v) (catch Exception _ v))))
+  (assoc m (keyword k) (parse-int v v)))
 
 (defn parse-parameters [parameters]
   (if parameters
