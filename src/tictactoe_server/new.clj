@@ -9,17 +9,17 @@
 
 (def necessary-parameters
   {:size #(and (integer? %) (pos? %))
-   :vs #(.contains ["naive" "minimax"] %)})
+   :vs #(.contains ["naive" "minimax" "local"] %)})
 
-(defn- get-algorithm [vs rules]
+(defn- get-opponent [vs rules]
   ({"minimax" (Minimax. Board$Mark/O rules)
     "naive" (NaiveChoice.)} vs))
 
-(defn- get-start-record [{size :size vs :vs}]
+(defn- get-start-record [{:keys [size vs]}]
   (let [rules (DefaultRules. size)]
     {:rules rules
      :board (SquareBoard. size)
-     :algorithm (get-algorithm vs rules)
+     :opponent (get-opponent vs rules)
      :turn Board$Mark/X}))
 
 (defn- contains-necessary-parameters? [parameters]

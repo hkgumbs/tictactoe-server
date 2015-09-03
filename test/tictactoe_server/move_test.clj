@@ -24,6 +24,19 @@
                   (.add 0 Board$Mark/X)
                   (.add 4 Board$Mark/O) .toString)})))
 
+(describe "Local human"
+  (it "has chance to respond with move"
+    (socket/connect "/new" "size=3&vs=local")
+    (socket/validate-body
+      (socket/connect "/move" "position=0")
+      {:board (-> (SquareBoard. 3)
+                  (.add 0 Board$Mark/X) .toString)})
+    (socket/validate-body
+      (socket/connect "/move" "position=8")
+      {:board (-> (SquareBoard. 3)
+                  (.add 0 Board$Mark/X)
+                  (.add 8 Board$Mark/O) .toString)})))
+
 (describe "Invalid input to /move"
   (it "400s"
     (socket/connect "/new" "size=3&vs=naive")

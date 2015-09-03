@@ -10,9 +10,14 @@
     (storage/modify
       #(into % {:board (.add board position turn) :turn (.other turn)}))))
 
-(defn- get-cpu-move []
-  (let [{:keys [algorithm board]} (storage/retrieve)]
-    (.run ^Algorithm algorithm board)))
+(defn- get-opponent-move []
+  (let [{:keys [opponent board]} (storage/retrieve)]
+    (if opponent (.run ^Algorithm opponent board))))
+
+(defn- make-moves [position]
+  (update-storage position)
+  (if-let [opponent-move (get-opponent-move)] (update-storage opponent-move))
+    (util/respond (select-keys (storage/retrieve) [:board])))
 
 (defn valid-position? [position]
   (and
@@ -22,7 +27,5 @@
 (defmethod app/route "/move" [request]
   (let [{position :position} (util/parse-parameters (:parameters request))]
     (if (valid-position? position)
-      (do (update-storage position)
-          (util/respond
-            (select-keys (update-storage (get-cpu-move)) [:board])))
+      (make-moves position)
       (response/make 400))))
