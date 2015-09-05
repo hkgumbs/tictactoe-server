@@ -1,7 +1,6 @@
 (ns tictactoe-server.storage-test
   (:require [speclj.core :refer :all]
-            [tictactoe-server.storage :as storage]
-            [cheshire.core :as json]))
+            [tictactoe-server.storage :as storage]))
 
 (describe "Storage"
   (it "keeps track of one arbitrary objects"
