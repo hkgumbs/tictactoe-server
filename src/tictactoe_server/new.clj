@@ -20,6 +20,7 @@
     {:rules rules
      :board (SquareBoard. size)
      :opponent (get-opponent vs rules)
+     :status "ready"
      :turn Board$Mark/X}))
 
 (defn- contains-necessary-parameters? [parameters]
@@ -31,5 +32,5 @@
       (util/respond
         (select-keys
           (storage/create (get-start-record parameters))
-          [:board]))
+          [:board :status]))
       [(response/make 400)])))

@@ -3,21 +3,29 @@
             [tictactoe-server.app :as app]
             [tictactoe-server.storage :as storage]
             [tictactoe-server.util :as util])
-  (:import [me.hkgumbs.tictactoe.main.java.player Algorithm]))
+  (:import [me.hkgumbs.tictactoe.main.java.player Algorithm]
+           [me.hkgumbs.tictactoe.main.java.rules Rules]))
 
+(defn- get-status [rules board]
+  (if (.gameIsOver ^Rules rules board) "terminated" "ready"))
 (defn- update-storage [position]
-  (let [{:keys [board turn]} (storage/retrieve)]
+  (let [{:keys [board turn rules]} (storage/retrieve)
+        board (.add board position turn)]
     (storage/modify
-      #(into % {:board (.add board position turn) :turn (.other turn)}))))
+      #(into % {:board board
+                :status (get-status rules board)
+                :turn (.other turn)}))))
 
 (defn- get-opponent-move []
-  (let [{:keys [opponent board]} (storage/retrieve)]
-    (if opponent (.run ^Algorithm opponent board))))
+  (let [{:keys [opponent board rules]} (storage/retrieve)
+        ongoing (not (.gameIsOver rules board))]
+    (if (and opponent ongoing) (.run ^Algorithm opponent board))))
 
 (defn- make-moves [position]
   (update-storage position)
   (if-let [opponent-move (get-opponent-move)] (update-storage opponent-move))
-    (util/respond (select-keys (storage/retrieve) [:board])))
+  (let [{:keys [board status rules]} (storage/retrieve)]
+    (util/respond {:board board :status status})))
 
 (defn valid-position? [position]
   (and

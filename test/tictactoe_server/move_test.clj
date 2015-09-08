@@ -11,16 +11,29 @@
     (socket/connect "/new" "size=3&vs=naive")
     (socket/validate-body
       (socket/connect "/move" "position=4")
-      {:board (-> (SquareBoard. 3)
+      {:status "ready"
+       :board (-> (SquareBoard. 3)
                   (.add 4 Board$Mark/X)
-                  (.add 0 Board$Mark/O) .toString)})))
+                  (.add 0 Board$Mark/O) .toString)}))
+  (it "loses"
+    (socket/connect "/new" "size=3&vs=naive")
+    (socket/connect "/move" "position=8")
+    (socket/connect "/move" "position=7")
+    (socket/validate-body
+      (socket/connect "/move" "position=6")
+      {:status "terminated"
+       :board (-> (SquareBoard. 3)
+                  (.add 8 Board$Mark/X) (.add 0 Board$Mark/O)
+                  (.add 7 Board$Mark/X) (.add 1 Board$Mark/O)
+                  (.add 6 Board$Mark/X) .toString)})))
 
 (describe "Minimax"
   (it "adds piece at best slot"
     (socket/connect "/new" "size=3&vs=minimax")
     (socket/validate-body
       (socket/connect "/move" "position=0")
-      {:board (-> (SquareBoard. 3)
+      {:status "ready"
+       :board (-> (SquareBoard. 3)
                   (.add 0 Board$Mark/X)
                   (.add 4 Board$Mark/O) .toString)})))
 
@@ -29,11 +42,13 @@
     (socket/connect "/new" "size=3&vs=local")
     (socket/validate-body
       (socket/connect "/move" "position=0")
-      {:board (-> (SquareBoard. 3)
+      {:status "ready"
+       :board (-> (SquareBoard. 3)
                   (.add 0 Board$Mark/X) .toString)})
     (socket/validate-body
       (socket/connect "/move" "position=8")
-      {:board (-> (SquareBoard. 3)
+      {:status "ready"
+       :board (-> (SquareBoard. 3)
                   (.add 0 Board$Mark/X)
                   (.add 8 Board$Mark/O) .toString)})))
 

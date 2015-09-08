@@ -8,4 +8,4 @@
 (generate/add-encoder Board encode-board)
 
 (defn encode [object] (cheshire/encode object))
-(defn decode [string] (println string) (cheshire/decode string true))
+(defn decode [string] (cheshire/decode string true))

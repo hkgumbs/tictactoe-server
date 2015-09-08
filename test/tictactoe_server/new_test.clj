@@ -10,7 +10,7 @@
   (it "starts a new game"
     (socket/validate-body
       (socket/connect "/new" "size=3&vs=naive")
-      {:board (.toString (SquareBoard. 3))}))
+      {:board (.toString (SquareBoard. 3)) :status "ready"}))
   (it "400s on bad parameters"
     (should=
       (response/make 400)
