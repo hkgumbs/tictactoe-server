@@ -17,13 +17,25 @@ describe('App', function() {
         expect($('.move').length).toBe(25);
     });
 
+    it('creates buttons with proper links', function() {
+        testButtonSetup(3);
+        $('#1').trigger('click');
+        expect(jasmine.Ajax.requests.mostRecent().url).toBe("move?position=1");
+        jasmine.Ajax.requests.mostRecent().respondWith({
+            'status': 200,
+            'responseText': '{"board": "OX-------"}'
+        });
+        expect($('#1').length).toBe(0);
+        expect($('#2').length).toBe(1);
+    });
+
     function testButtonSetup(size) {
         setFixtures('<div class="game"></div>');
         var board = "";
         for (var i = 0; i < size * size; i++)
             board += '-';
 
-        setupNewGame('/new?size=' + size + '&vs=minimax');
+        requestBoard('/new?size=' + size + '&vs=naive');
         jasmine.Ajax.requests.mostRecent().respondWith({
             'status': 200,
             'responseText': '{"board": "' + board + '"}'

@@ -4,21 +4,37 @@ function getNewGameUri() {
         'vs=' + $('[name=vs]').val();
 }
 
-function makeButtons(json) {
-    var board = json['board'];
-    var size = Math.sqrt(board.length);
+function makeSlot(slot, n) {
+    if (slot == '-')
+        return '<button class="move" id="' + n + '">' + n + '</button>';
+    else
+        return '<button>' + slot + '</button>';
+}
+
+function makeSlots(board, size) {
     var html = '';
     for (var i = 0; i < size; i++) {
         for (var j = 0; j < size; j++) {
-            html += '<button class="move">' + (i*size + j) + '</button>';
+            var n = (i*size + j);
+            html += makeSlot(board[n], n);
         }
         html += '<br>';
     }
-    $('.game').html(html);
+    return html;
 }
 
-function setupNewGame(uri) {
-    $.getJSON(uri, makeButtons);
+function move() {
+    var uri = 'move?position=' + $(this).attr('id');
+    requestBoard(uri);
 }
 
-$('[name=new]').on('click', function() { setupNewGame(getNewGameUri()); });
+function makeBoard(json) {
+    var board = json['board'];
+    var size = Math.sqrt(board.length);
+    $('.game').html(makeSlots(board, size));
+    $('.move').on('click', move);
+}
+
+function requestBoard(uri) { $.getJSON(uri, makeBoard); }
+function makeNewGame() { requestBoard(getNewGameUri()); }
+$('[name=new]').on('click', makeNewGame);
