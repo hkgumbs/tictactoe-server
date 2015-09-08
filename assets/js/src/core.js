@@ -8,7 +8,7 @@ function makeSlot(slot, n) {
     if (slot == '-')
         return '<button class="move" id="' + n + '">' + n + '</button>';
     else
-        return '<button>' + slot + '</button>';
+        return '<button disabled>' + slot + '</button>';
 }
 
 function makeSlots(board, size) {

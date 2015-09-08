@@ -27,6 +27,7 @@ describe('App', function() {
         });
         expect($('#1').length).toBe(0);
         expect($('#2').length).toBe(1);
+        expect($('[disabled]').length).toBe(2);
     });
 
     function testButtonSetup(size) {
