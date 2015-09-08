@@ -10,7 +10,7 @@ function makeButtons(json) {
     var html = '';
     for (var i = 0; i < size; i++) {
         for (var j = 0; j < size; j++) {
-            html += '<button class="move">' + (i*3 + j) + '</button>';
+            html += '<button class="move">' + (i*size + j) + '</button>';
         }
         html += '<br>';
     }

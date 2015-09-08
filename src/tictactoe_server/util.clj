@@ -3,13 +3,11 @@
             [tictactoe-server.json :as json])
   (:import [me.hkgumbs.tictactoe.main.java.board SquareBoard Board$Mark]))
 
-(defn respond
-  ([] (response/make 200))
-  ([content]
-   (let [body (json/encode content)
-         headers {:Content-Type "application/json; charset=utf-8"
-                  :Content-Length (count body)}]
-     (str (response/make 200 headers) body))))
+(defn respond [content]
+  (let [body (json/encode content)
+        headers {:Content-Type "application/json; charset=utf-8"
+                 :Content-Length (count body)}]
+    [(response/make 200 headers) body]))
 
 (defn parse-int [number default]
   (try (Integer. ^String number) (catch Exception _ default)))

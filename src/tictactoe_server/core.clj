@@ -9,7 +9,8 @@
 
 (defn -main [& [port]]
   (let [server (java.net.ServerSocket. (util/parse-int port 5000))
-        {:keys [valid-request-handler]} backing-app/responder]
+        {:keys [valid-request-handler initializer]} backing-app/responder]
+    (initializer)
     (println "Serving Tic Tac Toe over HTTP...")
     (while (not (.isClosed server))
       (let [socket (.accept server)]

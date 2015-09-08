@@ -14,9 +14,7 @@
           "Content-Type: application/json; charset=utf-8\r\n"
           "Content-Length: " (count body) "\r\n\r\n"
           body))
-      (util/respond {:hello "world"})))
-  (it "responds with bare 200 without parameters"
-    (should= "HTTP/1.1 200 OK\r\n\r\n" (util/respond))))
+      (apply str (util/respond {:hello "world"})))))
 
 (describe "Integer parsing"
   (it "defaults to default value"

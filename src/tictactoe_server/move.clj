@@ -28,4 +28,4 @@
   (let [{position :position} (util/parse-parameters (:parameters request))]
     (if (valid-position? position)
       (make-moves position)
-      (response/make 400))))
+      [(response/make 400)])))

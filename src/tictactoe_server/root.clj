@@ -4,7 +4,5 @@
 
 (defmethod app/route "/" [_]
   (let [html (slurp "assets/index.html")]
-    (str
-      (response/make
-        200 {:Content-Type "text/html" :Content-Length (count html)})
-      html)))
+    [(response/make 200 {:Content-Type "text/html" :Content-Length (count html)})
+     html]))

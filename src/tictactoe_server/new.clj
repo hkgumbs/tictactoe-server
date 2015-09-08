@@ -32,4 +32,4 @@
         (select-keys
           (storage/create (get-start-record parameters))
           [:board]))
-      (response/make 400))))
+      [(response/make 400)])))
