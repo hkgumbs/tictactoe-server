@@ -12,26 +12,26 @@ describe('App', function() {
 
     it('creates buttons based on JSON response', function() {
         testButtonSetup(3);
-        expect($('.move').length).toBe(9);
+        expect($('[data-position]').length).toBe(9);
         testButtonSetup(5);
-        expect($('.move').length).toBe(25);
+        expect($('[data-position]').length).toBe(25);
     });
 
     it('creates buttons with proper links', function() {
         testButtonSetup(3);
-        $('#1').trigger('click');
+        $('[data-position=1]').trigger('click');
         expect(jasmine.Ajax.requests.mostRecent().url).toBe("move?position=1");
         jasmine.Ajax.requests.mostRecent().respondWith({
             'status': 200,
             'responseText': '{"board": "OX-------"}'
         });
-        expect($('#1').length).toBe(0);
-        expect($('#2').length).toBe(1);
+        expect($('[data-position=1]').length).toBe(0);
+        expect($('[data-position=2]').length).toBe(1);
         expect($('[disabled]').length).toBe(2);
     });
 
     function testButtonSetup(size) {
-        setFixtures('<div class="game"></div>');
+        setFixtures('<div data-game></div>');
         var board = "";
         for (var i = 0; i < size * size; i++)
             board += '-';

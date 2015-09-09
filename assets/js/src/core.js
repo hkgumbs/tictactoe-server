@@ -6,7 +6,8 @@ function getNewGameUri() {
 
 function makeSlot(slot, n) {
     if (slot == '-')
-        return '<button class="move" id="' + n + '">' + n + '</button>';
+        return '<button data-position="' +
+            n + '">' + n + '</button>';
     else
         return '<button disabled>' + slot + '</button>';
 }
@@ -24,15 +25,15 @@ function makeSlots(board, size) {
 }
 
 function move() {
-    var uri = 'move?position=' + $(this).attr('id');
+    var uri = 'move?position=' + $(this).data('position');
     requestBoard(uri);
 }
 
 function makeBoard(json) {
     var board = json['board'];
     var size = Math.sqrt(board.length);
-    $('.game').html(makeSlots(board, size));
-    $('.move').on('click', move);
+    $('[data-game]').html(makeSlots(board, size));
+    $('[data-position]').on('click', move);
 }
 
 function requestBoard(uri) { $.getJSON(uri, makeBoard); }
