@@ -21,7 +21,10 @@
         :board (-> (SquareBoard. 3)
                    (.add 8 Board$Mark/X) (.add 0 Board$Mark/O)
                    (.add 7 Board$Mark/X) (.add 1 Board$Mark/O)
-                   (.add 6 Board$Mark/X) .toString)})))
+                   (.add 6 Board$Mark/X) .toString)})
+    (should=
+      (response/make 400)
+      (socket/connect "/move" (str "position=4" @player-id)))))
 
 (describe "Minimax"
   (with player-id (get-player-id "minimax"))

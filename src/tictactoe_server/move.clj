@@ -36,9 +36,10 @@
         #(into % (update-status player-id (make-moves position record))))
       [:board :status])))
 
-(defn- valid-move? [position player-id {:keys [board turn player-ids vs]}]
+(defn- valid-move? [position player-id {:keys [player-ids status board]}]
   (and
     (= player-id (first player-ids))
+    (not= status "terminated")
     (integer? position)
     (-> board .getEmptySpaceIds (.contains position))))
 

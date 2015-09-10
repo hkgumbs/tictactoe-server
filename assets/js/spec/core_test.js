@@ -29,7 +29,6 @@ describe('App', function() {
         expect($('[data-position=1]').length).toBe(0);
         expect($('[data-position=2]').length).toBe(1);
         expect($('[disabled]').length).toBe(2);
-        expect($('[data-player-id]').val(), '12345');
     });
 
     function testButtonSetup(size) {
