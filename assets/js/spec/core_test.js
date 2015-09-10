@@ -20,7 +20,8 @@ describe('App', function() {
     it('creates buttons with proper links', function() {
         testButtonSetup(3);
         $('[data-position=1]').trigger('click');
-        expect(jasmine.Ajax.requests.mostRecent().url).toBe("move?position=1");
+        var url = "move?position=1&player-id=12345";
+        expect(jasmine.Ajax.requests.mostRecent().url).toBe(url);
         jasmine.Ajax.requests.mostRecent().respondWith({
             'status': 200,
             'responseText': '{"board": "OX-------"}'
@@ -28,6 +29,7 @@ describe('App', function() {
         expect($('[data-position=1]').length).toBe(0);
         expect($('[data-position=2]').length).toBe(1);
         expect($('[disabled]').length).toBe(2);
+        expect($('[data-player-id]').val(), '12345');
     });
 
     function testButtonSetup(size) {
@@ -39,7 +41,7 @@ describe('App', function() {
         requestBoard('/new?size=' + size + '&vs=naive');
         jasmine.Ajax.requests.mostRecent().respondWith({
             'status': 200,
-            'responseText': '{"board": "' + board + '"}'
+            'responseText': '{"player-id":12345, "board":"' + board + '"}'
         });
     };
 });

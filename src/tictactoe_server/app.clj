@@ -10,6 +10,6 @@
 (defn- copy [source socket] (io/copy source (.getOutputStream socket)))
 (defn handle [socket request]
   (reset! most-recent-socket socket)
-  (doseq [response (route request)] (copy response socket)))
+  (doseq [response (route request)] (copy response socket)) true)
 
 (defn initialize [] (app/initialize ["-d" "assets"]))

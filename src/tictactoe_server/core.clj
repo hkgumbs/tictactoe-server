@@ -9,7 +9,7 @@
 
 (defn -main [& [port]]
   (let [server (java.net.ServerSocket. (util/parse-int port 5000))]
-    (app/initialize)
+    (ttt/initialize)
     (println "Serving Tic Tac Toe over HTTP...")
     (while (not (.isClosed server))
       (let [socket (.accept server)]

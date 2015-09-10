@@ -25,15 +25,27 @@ function makeSlots(board, size) {
 }
 
 function move() {
-    var uri = 'move?position=' + $(this).data('position');
+    var uri = 'move?' +
+        'position=' + $(this).data('position') +
+        '&player-id=' + $('[data-player-id]').val();
     requestBoard(uri);
+}
+
+function getPlayerId(json) {
+    var current = $('[data-player-id]').val();
+    return current ? current : current = json['player-id'];
 }
 
 function makeBoard(json) {
     var board = json['board'];
     var size = Math.sqrt(board.length);
+    var playerId = getPlayerId(json);
     $('[data-game]').html(makeSlots(board, size));
     $('[data-position]').on('click', move);
+    var hidden = '<input type="hidden" value="' + playerId +
+        '" data-player-id></input>';
+    $('[data-game]').append(hidden);
+    $('[data-game]').append(json['status']);
 }
 
 function requestBoard(uri) { $.getJSON(uri, makeBoard); }
