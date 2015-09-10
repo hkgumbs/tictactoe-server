@@ -20,8 +20,8 @@
 
 (defn- includes-parameters [json-response parameters]
   (let [decoded-response (json/decode json-response)]
-    (doall (for [[map-key map-value] parameters]
-             (should= map-value (map-key decoded-response))))))
+    (doseq [[map-key map-value] parameters]
+      (should-contain map-value (map-key decoded-response)))))
 
 (defn validate-body [response parameters]
   (includes-parameters (second (.split response "\r\n\r\n" 2)) parameters))

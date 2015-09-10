@@ -9,28 +9,38 @@
 
 (def necessary-parameters
   {:size #(and (integer? %) (pos? %))
-   :vs #(.contains ["naive" "minimax" "local"] %)})
+   :vs #(.contains ["naive" "minimax" "local" "remote"] %)})
 
 (defn- get-opponent [vs rules]
   ({"minimax" (Minimax. Board$Mark/O rules)
     "naive" (NaiveChoice.)} vs))
 
+(defn- get-unique-id []
+  (Integer. ^String (apply str (repeatedly 5 #(rand-int 10)))))
+(defn- get-player-ids [vs]
+  (if (= vs "remote") [(get-unique-id) (get-unique-id)] [(get-unique-id)]))
 (defn- get-start-record [{:keys [size vs]}]
-  (let [rules (DefaultRules. size)]
-    {:rules rules
+  (let [rules (DefaultRules. size)
+        player-ids [(get-unique-id) (get-unique-id)]]
+    {:vs vs
+     :rules rules
      :board (SquareBoard. size)
-     :opponent (get-opponent vs rules)
+     :cpu (get-opponent vs rules)
+     :player-ids (get-player-ids vs)
      :status "ready"
      :turn Board$Mark/X}))
 
 (defn- contains-necessary-parameters? [parameters]
   (every? (fn [[k f]] (f (k parameters))) necessary-parameters))
 
+(defn- get-public-fields [record]
+  {:board (:board record)
+   :status (:status record)
+   :player-id (first (:player-ids record))})
+
 (defmethod app/route "/new" [request]
   (let [parameters (util/parse-parameters (:parameters request))]
     (if (contains-necessary-parameters? parameters)
       (util/respond
-        (select-keys
-          (storage/create (get-start-record parameters))
-          [:board :status]))
+        (get-public-fields (storage/create (get-start-record parameters))))
       [(response/make 400)])))

@@ -1,63 +1,70 @@
-(ns tictactoe-server.move-test
-  (:require [speclj.core :refer :all]
+(ns tictactoe-server.move-test (:require [speclj.core :refer :all]
             [webserver.response :as response]
             [tictactoe-server.new]
             [tictactoe-server.move]
             [tictactoe-server.mock-socket :as socket])
   (:import [me.hkgumbs.tictactoe.main.java.board SquareBoard Board$Mark]))
 
+(defn- get-player-id [opponent]
+  (str "&player-id="
+       (second (re-find #"\"player-id\":(\d+)"
+                        (socket/connect "/new" (str "size=3&vs=" opponent))))))
+
 (describe "Naive CPU"
-  (it "adds piece to board in first slot"
-    (socket/connect "/new" "size=3&vs=naive")
-    (socket/validate-body
-      (socket/connect "/move" "position=4")
-      {:status "ready"
-       :board (-> (SquareBoard. 3)
-                  (.add 4 Board$Mark/X)
-                  (.add 0 Board$Mark/O) .toString)}))
+  (with player-id (get-player-id "naive"))
   (it "loses"
-    (socket/connect "/new" "size=3&vs=naive")
-    (socket/connect "/move" "position=8")
-    (socket/connect "/move" "position=7")
+    (socket/connect "/move" (str "position=8" @player-id))
+    (socket/connect "/move" (str "position=7" @player-id))
     (socket/validate-body
-      (socket/connect "/move" "position=6")
-      {:status "terminated"
-       :board (-> (SquareBoard. 3)
-                  (.add 8 Board$Mark/X) (.add 0 Board$Mark/O)
-                  (.add 7 Board$Mark/X) (.add 1 Board$Mark/O)
-                  (.add 6 Board$Mark/X) .toString)})))
+       (socket/connect "/move" (str "position=6" @player-id))
+       {:status "terminated"
+        :board (-> (SquareBoard. 3)
+                   (.add 8 Board$Mark/X) (.add 0 Board$Mark/O)
+                   (.add 7 Board$Mark/X) (.add 1 Board$Mark/O)
+                   (.add 6 Board$Mark/X) .toString)})))
 
 (describe "Minimax"
+  (with player-id (get-player-id "minimax"))
   (it "adds piece at best slot"
-    (socket/connect "/new" "size=3&vs=minimax")
     (socket/validate-body
-      (socket/connect "/move" "position=0")
+      (socket/connect "/move" (str "position=0" @player-id))
       {:status "ready"
        :board (-> (SquareBoard. 3)
-                  (.add 0 Board$Mark/X)
-                  (.add 4 Board$Mark/O) .toString)})))
+                  (.add 0 Board$Mark/X) (.add 4 Board$Mark/O) .toString)})))
 
 (describe "Local human"
+  (with player-id (get-player-id "local"))
   (it "has chance to respond with move"
-    (socket/connect "/new" "size=3&vs=local")
     (socket/validate-body
-      (socket/connect "/move" "position=0")
+      (socket/connect "/move" (str "position=0" @player-id))
       {:status "ready"
-       :board (-> (SquareBoard. 3)
-                  (.add 0 Board$Mark/X) .toString)})
+       :board (-> (SquareBoard. 3) (.add 0 Board$Mark/X) .toString)})
     (socket/validate-body
-      (socket/connect "/move" "position=8")
-      {:status "ready"
-       :board (-> (SquareBoard. 3)
-                  (.add 0 Board$Mark/X)
-                  (.add 8 Board$Mark/O) .toString)})))
+       (socket/connect "/move" (str "position=8" @player-id))
+       {:status "ready"
+        :board (-> (SquareBoard. 3)
+                   (.add 0 Board$Mark/X) (.add 8 Board$Mark/O) .toString)})))
+
+(describe "Remote human"
+  (with player-id (get-player-id "remote"))
+  (it "waits for human opponent"
+    (socket/validate-body
+      (socket/connect "/move" (str "position=0" @player-id))
+      {:status "waiting"
+       :board (-> (SquareBoard. 3) (.add 0 Board$Mark/X) .toString)})
+    (should=
+       (response/make 400)
+       (socket/connect "/move" (str"position=1" @player-id)))))
 
 (describe "Invalid input to /move"
+  (with player-id (get-player-id "naive"))
   (it "400s"
-    (socket/connect "/new" "size=3&vs=naive")
     (should=
       (response/make 400)
-      (socket/connect "/move" "position=-1"))
+      (socket/connect "/move" (str "position=-1" @player-id)))
     (should=
-      (response/make 400)
-      (socket/connect "/move" "position=foobar"))))
+       (response/make 400)
+       (socket/connect "/move" (str "position=foobar" @player-id)))
+    (should=
+       (response/make 400)
+       (socket/connect "/move" "position=4&player-id=nonsense"))))
