@@ -3,7 +3,6 @@
             [tictactoe-server.app :as app]
             [tictactoe-server.json :as json]))
 
-(def handler (:valid-request-handler app/responder))
 (def template {:method "GET" :version "HTTP/1.1"})
 
 (defn- make [input]
@@ -16,7 +15,7 @@
 (defn connect [uri parameters]
   (let [socket (make "")
         request (into template {:uri uri :parameters parameters})]
-    (handler socket request)
+    (app/handle socket request)
     (str (.getOutputStream socket))))
 
 (defn- includes-parameters [json-response parameters]

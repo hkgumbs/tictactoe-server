@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    </head>
+    <body>
+        <label for="size">Board size:</label>
+        <input type="number" name="size" min="1" value="3">
+        <br>
+        <label for="vs">Opponent:</label>
+        <select name="vs">
+            <option value="naive">Naive CPU</option>
+            <option value="minimax">Unbeatable CPU</option>
+            <option value="local">Person next to you</option>
+        </select>
+        <br>
+        <button name="new">Start new game</button>
+        <br><br>
+        <div class="game" data-game></div>
+    </body>
+    <script src="js/src/core.js"></script>
+</html>

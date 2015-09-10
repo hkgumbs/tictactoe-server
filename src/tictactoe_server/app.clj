@@ -1,12 +1,15 @@
 (ns tictactoe-server.app
-  (:require [webserver.response :as response]
+  (:require [webserver.get]
+            [webserver.app :as app]
             [clojure.java.io :as io]))
 
+(def most-recent-socket (atom nil))
 (defmulti route :uri)
-(defmethod route :default [_] (response/make 404))
+(defmethod route :default [request] (app/route @most-recent-socket request))
 
-(defn- handle [socket request]
-  (io/copy (route request) (.getOutputStream socket)))
+(defn- copy [source socket] (io/copy source (.getOutputStream socket)))
+(defn handle [socket request]
+  (reset! most-recent-socket socket)
+  (doseq [response (route request)] (copy response socket)))
 
-(def responder
-  {:valid-request-handler handle})
+(defn initialize [] (app/initialize ["-d" "assets"]))
