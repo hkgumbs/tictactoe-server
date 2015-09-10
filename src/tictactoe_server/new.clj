@@ -12,13 +12,13 @@
    :vs #(.contains ["naive" "minimax" "local" "remote"] %)})
 
 (defn- get-opponent [vs rules]
-  ({"minimax" (Minimax. Board$Mark/O rules)
-    "naive" (NaiveChoice.)} vs))
+  ({"minimax" (Minimax. Board$Mark/O rules) "naive" (NaiveChoice.)} vs))
 
 (defn- get-unique-id []
   (Integer. ^String (apply str (repeatedly 5 #(rand-int 10)))))
 (defn- get-player-ids [vs]
   (if (= vs "remote") [(get-unique-id) (get-unique-id)] [(get-unique-id)]))
+
 (defn- get-start-record [{:keys [size vs]}]
   (let [rules (DefaultRules. size)
         player-ids [(get-unique-id) (get-unique-id)]]

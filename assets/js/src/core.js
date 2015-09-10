@@ -32,8 +32,7 @@ function move() {
 }
 
 function getPlayerId(json) {
-    var current = $('[data-player-id]').val();
-    return current ? current : current = json['player-id'];
+    return json['player-id'] ? json['player-id'] : $('[data-player-id]').val();
 }
 
 function makeBoard(json) {
