@@ -5,7 +5,7 @@
             [webserver.response :as response]))
 
 (describe "Default route behavior"
-  (before ((:initializer app/responder)))
+  (before (app/initialize))
   (it "404s on non-existent file"
     (should= (response/make 404) (socket/connect "/foobar" "")))
   (it "doesn't 404 on stylesheet"
