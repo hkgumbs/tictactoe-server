@@ -9,8 +9,8 @@
 (defn- get-status [player-id {:keys [rules board player-ids]}]
   (cond
     (.gameIsOver ^Rules rules board) "terminated"
-    (not= player-id (first player-ids)) "waiting"
-    :default "ready"))
+    (= player-id (first player-ids)) "ready"
+    :default "waiting"))
 (defn- update-status [player-id record]
   (assoc record :status (get-status player-id record)))
 
@@ -43,8 +43,8 @@
     (integer? position)
     (-> board .getEmptySpaceIds (.contains position))))
 
-(defmethod app/route "/move" [request]
-  (let [{:keys [position player-id]} (util/parse-parameters (:parameters request))
+(defmethod app/route "/move" [{parameters :parameters}]
+  (let [{:keys [position player-id]} (util/parse-parameters parameters)
         record (storage/retrieve)]
     (if (valid-move? position player-id record)
       (respond player-id position record)

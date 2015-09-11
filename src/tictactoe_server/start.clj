@@ -1,4 +1,4 @@
-(ns tictactoe-server.new
+(ns tictactoe-server.start
   (:require [webserver.response :as response]
             [tictactoe-server.app :as app]
             [tictactoe-server.storage :as storage]
@@ -10,6 +10,8 @@
 (def necessary-parameters
   {:size #(and (integer? %) (pos? %))
    :vs #(.contains ["naive" "minimax" "local" "remote"] %)})
+(defn- contains-necessary-parameters? [parameters]
+  (every? (fn [[k f]] (f (k parameters))) necessary-parameters))
 
 (defn- get-opponent [vs rules]
   ({"minimax" (Minimax. Board$Mark/O rules) "naive" (NaiveChoice.)} vs))
@@ -30,17 +32,22 @@
      :status "ready"
      :turn Board$Mark/X}))
 
-(defn- contains-necessary-parameters? [parameters]
-  (every? (fn [[k f]] (f (k parameters))) necessary-parameters))
-
-(defn- get-public-fields [record]
+(defn- get-public-fields [record which]
   {:board (:board record)
    :status (:status record)
-   :player-id (first (:player-ids record))})
+   :player-id (which (:player-ids record))})
 
 (defmethod app/route "/new" [request]
   (let [parameters (util/parse-parameters (:parameters request))]
     (if (contains-necessary-parameters? parameters)
       (util/respond
-        (get-public-fields (storage/create (get-start-record parameters))))
+        (get-public-fields
+          (storage/create (get-start-record parameters)) first))
       [(response/make 400)])))
+
+(defn- get-corrected-status [{status :status :as record}]
+  (let [corrected-status ({"ready" "waiting" "waiting" "ready"} status)]
+    (assoc record :status (if corrected-status corrected-status status))))
+(defmethod app/route "/join" [request]
+  (util/respond
+    (get-public-fields (get-corrected-status (storage/retrieve)) second)))

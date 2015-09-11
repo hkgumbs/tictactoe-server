@@ -3,7 +3,7 @@
   (:require [webserver.app :as app]
             [tictactoe-server.app :as ttt]
             [tictactoe-server.root]
-            [tictactoe-server.new]
+            [tictactoe-server.start]
             [tictactoe-server.move]
             [tictactoe-server.util :as util]))
 

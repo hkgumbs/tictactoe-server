@@ -1,17 +1,17 @@
 (ns tictactoe-server.move-test (:require [speclj.core :refer :all]
             [webserver.response :as response]
-            [tictactoe-server.new]
+            [tictactoe-server.start]
             [tictactoe-server.move]
             [tictactoe-server.mock-socket :as socket])
   (:import [me.hkgumbs.tictactoe.main.java.board SquareBoard Board$Mark]))
 
-(defn- get-player-id [opponent]
+(defn- parse-player-id [data] (second (re-find #"\"player-id\":(\d+)" data)))
+(defn- get-new-player-id [opponent]
   (str "&player-id="
-       (second (re-find #"\"player-id\":(\d+)"
-                        (socket/connect "/new" (str "size=3&vs=" opponent))))))
+       (parse-player-id (socket/connect "/new" (str "size=3&vs=" opponent)))))
 
 (describe "Naive CPU"
-  (with player-id (get-player-id "naive"))
+  (with player-id (get-new-player-id "naive"))
   (it "loses"
     (socket/connect "/move" (str "position=8" @player-id))
     (socket/connect "/move" (str "position=7" @player-id))
@@ -27,7 +27,7 @@
       (socket/connect "/move" (str "position=4" @player-id)))))
 
 (describe "Minimax"
-  (with player-id (get-player-id "minimax"))
+  (with player-id (get-new-player-id "minimax"))
   (it "adds piece at best slot"
     (socket/validate-body
       (socket/connect "/move" (str "position=0" @player-id))
@@ -36,7 +36,7 @@
                   (.add 0 Board$Mark/X) (.add 4 Board$Mark/O) .toString)})))
 
 (describe "Local human"
-  (with player-id (get-player-id "local"))
+  (with player-id (get-new-player-id "local"))
   (it "has chance to respond with move"
     (socket/validate-body
       (socket/connect "/move" (str "position=0" @player-id))
@@ -49,7 +49,7 @@
                    (.add 0 Board$Mark/X) (.add 8 Board$Mark/O) .toString)})))
 
 (describe "Remote human"
-  (with player-id (get-player-id "remote"))
+  (with! player-id (get-new-player-id "remote"))
   (it "waits for human opponent"
     (socket/validate-body
       (socket/connect "/move" (str "position=0" @player-id))
@@ -57,10 +57,27 @@
        :board (-> (SquareBoard. 3) (.add 0 Board$Mark/X) .toString)})
     (should=
        (response/make 400)
-       (socket/connect "/move" (str"position=1" @player-id)))))
+       (socket/connect "/move" (str"position=1" @player-id))))
+
+  (it "uses same game when joined"
+    (let [joined (socket/connect "/join" "")
+          joined-id (parse-player-id joined)]
+      (socket/validate-body
+        joined {:board (.toString (SquareBoard. 3)) :status "waiting"})
+      (should= (response/make 400)
+               (socket/connect "/move" (str "position0" joined-id)))
+      (socket/validate-body
+        (socket/connect "/move" (str "position=0" @player-id))
+        {:board (-> (SquareBoard. 3) (.add 0 Board$Mark/X) .toString)
+         :status "waiting"})
+      (socket/validate-body
+        (socket/connect "/move" (str "position=1&player-id=" joined-id))
+        {:board (-> (SquareBoard. 3)
+                    (.add 0 Board$Mark/X) (.add 1 Board$Mark/O) .toString)
+         :status "waiting"}))))
 
 (describe "Invalid input to /move"
-  (with player-id (get-player-id "naive"))
+  (with player-id (get-new-player-id "naive"))
   (it "400s"
     (should=
       (response/make 400)
