@@ -4,17 +4,19 @@
         <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
     </head>
     <body>
+        <button data-join>Join an ongoing game</button>
+        <br><br>-- or --<br><br>
         <label for="size">Board size:</label>
-        <input type="number" name="size" min="1" value="3">
+        <input type="number" name="size" min="1" value="3" data-size>
         <br>
         <label for="vs">Opponent:</label>
-        <select name="vs">
+        <select name="vs" data-vs>
             <option value="naive">Naive CPU</option>
             <option value="minimax">Unbeatable CPU</option>
             <option value="local">Person next to you</option>
         </select>
         <br>
-        <button name="new">Start new game</button>
+        <button name="new" data-new>Start new game</button>
         <br><br>
         <div class="game" data-game></div>
     </body>

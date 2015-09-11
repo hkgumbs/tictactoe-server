@@ -1,13 +1,14 @@
 describe('Url creation', function() {
     it('builds request correctly for /new', function() {
         var fixture =
-            '<input type="number" name="size" value="4">' +
-            '<select name="vs"><option value="minimax"></option></select>';
+            '<input type="number" data-size value="4">' +
+            '<select data-vs><option value="minimax"></option></select>';
         setFixtures(fixture);
         expect(getNewGameUri()).toBe('new?size=4&vs=minimax');
     });
 });
-describe('App', function() {
+
+describe('New game', function() {
     var firstNaiveMove = {
         'status': 200,
         'responseText': '{"board": "OX-------"}'
@@ -36,7 +37,7 @@ describe('App', function() {
         expect($('[disabled]').length).toBe(2);
     });
 
-    it('proberly responds to successive games', function() {
+    it('properly responds to successive games', function() {
         testButtonSetup(3, "12345");
         testButtonSetup(3, "23456");
         $('[data-position=1]').trigger('click');
@@ -56,4 +57,17 @@ describe('App', function() {
                 board + '"}'
         });
     };
+
+    it('is joined by join', function() {
+        var fixtures = '<div data-game></div>';
+        setFixtures(fixtures);
+        joinGame();
+        expect(jasmine.Ajax.requests.mostRecent().url).toBe('/join');
+        jasmine.Ajax.requests.mostRecent().respondWith({
+            'status': 200,
+            'responseText': '{"player-id": 12345, "board":"----X----"}'
+        });
+        expect($('[data-position]').length).toBe(8);
+        expect($('[disabled]').length).toBe(1);
+    });
 });

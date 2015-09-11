@@ -1,7 +1,7 @@
 function getNewGameUri() {
     return "new?" +
-        'size=' + $('[name=size]').val() + '&' +
-        'vs=' + $('[name=vs]').val();
+        'size=' + $('[data-size]').val() + '&' +
+        'vs=' + $('[data-vs]').val();
 }
 
 function makeSlot(slot, n) {
@@ -49,4 +49,6 @@ function makeBoard(json) {
 
 function requestBoard(uri) { $.getJSON(uri, makeBoard); }
 function makeNewGame() { requestBoard(getNewGameUri()); }
-$('[name=new]').on('click', makeNewGame);
+function joinGame() { requestBoard('/join'); }
+$('[data-new]').on('click', makeNewGame);
+$('[data-join]').on('click', joinGame);
