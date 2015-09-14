@@ -8,4 +8,4 @@
             [tictactoe-server.util :as util]))
 
 (defn -main [& args]
-  (servlet/start (concat args ["-d" "assets"]) app/handle))
+  (servlet/start (concat ["-d" "assets"] args) app/handle))
