@@ -1,6 +1,6 @@
 function get-latest {
     curl -s -L https://github.com/hkgumbs/$1/releases/latest \
-        | egrep -o "/hkgumbs/$1/releases/download/v.*\.jar" \
+        | egrep -m 1 -o "/hkgumbs/$1/releases/download/v.*\.jar" \
         | wget --base=http://github.com/ -i -
 }
 
