@@ -49,7 +49,7 @@
                    (.add 0 Board$Mark/X) (.add 8 Board$Mark/O) .toString)})))
 
 (describe "Remote human"
-  (with! player-id (get-new-player-id "remote"))
+  (with player-id (get-new-player-id "remote"))
   (it "waits for human opponent"
     (socket/validate-body
       (socket/connect "/move" (str "position=0" @player-id))
@@ -60,14 +60,15 @@
        (socket/connect "/move" (str"position=1" @player-id))))
 
   (it "uses same game when joined"
-    (let [joined (socket/connect "/join" "")
+    (let [initiating-id (get-new-player-id "remote")
+          joined (socket/connect "/join" "")
           joined-id (parse-player-id joined)]
       (socket/validate-body
         joined {:board (.toString (SquareBoard. 3)) :status "waiting"})
       (should= (response/make 400)
                (socket/connect "/move" (str "position0" joined-id)))
       (socket/validate-body
-        (socket/connect "/move" (str "position=0" @player-id))
+        (socket/connect "/move" (str "position=0" initiating-id))
         {:board (-> (SquareBoard. 3) (.add 0 Board$Mark/X) .toString)
          :status "waiting"})
       (socket/validate-body
