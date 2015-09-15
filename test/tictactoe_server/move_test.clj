@@ -49,15 +49,15 @@
                    (.add 0 Board$Mark/X) (.add 8 Board$Mark/O) .toString)})))
 
 (describe "Remote human"
-  (with player-id (get-new-player-id "remote"))
   (it "waits for human opponent"
-    (socket/validate-body
-      (socket/connect "/move" (str "position=0" @player-id))
-      {:status "waiting"
-       :board (-> (SquareBoard. 3) (.add 0 Board$Mark/X) .toString)})
-    (should=
-       (response/make 400)
-       (socket/connect "/move" (str"position=1" @player-id))))
+    (let [initiating-id (get-new-player-id "remote")]
+      (socket/validate-body
+        (socket/connect "/move" (str "position=0" initiating-id))
+        {:status "waiting"
+         :board (-> (SquareBoard. 3) (.add 0 Board$Mark/X) .toString)})
+      (should=
+        (response/make 400)
+        (socket/connect "/move" (str"position=1" initiating-id)))))
 
   (it "uses same game when joined"
     (let [initiating-id (get-new-player-id "remote")
@@ -85,7 +85,16 @@
          :status "waiting"})
       (should-not=
         initiating-id
-        (str "&player-id=" (parse-player-id (socket/connect "/join" "")))))))
+        (str "&player-id=" (parse-player-id (socket/connect "/join" ""))))))
+
+  (it "400s when no game is available to join"
+    (socket/connect "/new" "size=3&vs=naive")
+    (should= (response/make 400) (socket/connect "/join" "")))
+
+  (it "400s when game has already been joined"
+    (socket/connect "/new" "size=3&vs=remote")
+    (socket/connect "/join" "")
+    (should= (response/make 400) (socket/connect "/join" ""))))
 
 (describe "Invalid input to /move"
   (with player-id (get-new-player-id "naive"))

@@ -4,8 +4,7 @@
             [tictactoe-server.storage :as storage]
             [tictactoe-server.util :as util]
             [tictactoe-server.players :as players])
-  (:import [me.hkgumbs.tictactoe.main.java.player Algorithm]
-           [me.hkgumbs.tictactoe.main.java.rules Rules]))
+  (:import [me.hkgumbs.tictactoe.main.java.rules Rules]))
 
 (defn- get-status [player-id {:keys [rules board player-ids]}]
   (cond
@@ -26,8 +25,8 @@
   (and
     (= player-id (first player-ids))
     (integer? position)
-    (not (.gameIsOver rules board))
-    (.validateMove rules board position)))
+    (not (.gameIsOver ^Rules rules board))
+    (.validateMove ^Rules rules board position)))
 
 (defmethod app/route "/move" [{parameters :parameters}]
   (let [{:keys [position player-id]} (util/parse-parameters parameters)

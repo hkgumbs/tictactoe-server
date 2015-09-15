@@ -32,12 +32,12 @@
           (storage/create (get-start-record parameters))))
       [(response/make 400)])))
 
+(def status-swapper {"ready" "waiting" "waiting" "ready"})
 (defn- correct-status [{status :status :as record}]
-  (assoc
-    record
-    :status
-    (case status "ready" "waiting" "waiting" "ready" :default status)))
+  (assoc record :status (status-swapper status status)))
 (defmethod app/route "/join" [request]
-  (util/respond
-    (get-public-fields
-      (correct-status (storage/retrieve)) (players/get-join-id))))
+  (let [{vs :vs :as record} (storage/retrieve)
+        player-id (players/join)]
+    (if player-id
+      (util/respond (get-public-fields (correct-status record) player-id))
+      [(response/make 400)])))
