@@ -2,7 +2,8 @@
   (:require [webserver.response :as response]
             [tictactoe-server.app :as app]
             [tictactoe-server.storage :as storage]
-            [tictactoe-server.util :as util])
+            [tictactoe-server.util :as util]
+            [tictactoe-server.players :as players])
   (:import [me.hkgumbs.tictactoe.main.java.player Algorithm]
            [me.hkgumbs.tictactoe.main.java.rules Rules]))
 
@@ -14,34 +15,19 @@
 (defn- update-status [player-id record]
   (assoc record :status (get-status player-id record)))
 
-(defn- make-move [position {:keys [board turn player-ids] :as record}]
-  (into record
-        {:player-ids (reverse player-ids)
-         :turn (.other turn)
-         :board (.add board position turn)}))
-
-(defn- get-cpu-move [{:keys [cpu board rules]}]
-  (let [ongoing (not (.gameIsOver rules board))]
-    (if (and cpu ongoing) (.run ^Algorithm cpu board))))
-
-(defn- make-moves [position record]
-  (let [record (make-move position record)
-        cpu-move (get-cpu-move record)]
-    (if cpu-move (make-move cpu-move record) record)))
-
 (defn- respond [player-id position record]
   (util/respond
     (select-keys
       (storage/modify
-        #(into % (update-status player-id (make-moves position record))))
+        #(into % (update-status player-id (players/make-moves record position))))
       [:board :status])))
 
-(defn- valid-move? [position player-id {:keys [player-ids status board]}]
+(defn- valid-move? [position player-id {:keys [player-ids board rules]}]
   (and
     (= player-id (first player-ids))
-    (not= status "terminated")
     (integer? position)
-    (-> board .getEmptySpaceIds (.contains position))))
+    (not (.gameIsOver rules board))
+    (.validateMove rules board position)))
 
 (defmethod app/route "/move" [{parameters :parameters}]
   (let [{:keys [position player-id]} (util/parse-parameters parameters)

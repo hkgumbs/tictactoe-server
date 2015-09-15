@@ -75,7 +75,17 @@
         (socket/connect "/move" (str "position=1&player-id=" joined-id))
         {:board (-> (SquareBoard. 3)
                     (.add 0 Board$Mark/X) (.add 1 Board$Mark/O) .toString)
-         :status "waiting"}))))
+         :status "waiting"})))
+
+  (it "is allowed to play before someone else joins"
+    (let [initiating-id (get-new-player-id "remote")]
+      (socket/validate-body
+        (socket/connect "/move" (str "position=0" initiating-id))
+        {:board (.toString (.add (SquareBoard. 3) 0 Board$Mark/X))
+         :status "waiting"})
+      (should-not=
+        initiating-id
+        (str "&player-id=" (parse-player-id (socket/connect "/join" "")))))))
 
 (describe "Invalid input to /move"
   (with player-id (get-new-player-id "naive"))
