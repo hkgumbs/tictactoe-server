@@ -1,54 +1,56 @@
-function getNewGameUri() {
-    return "new?" +
-        'size=' + $('[data-size]').val() + '&' +
-        'vs=' + $('[data-vs]').val();
-}
-
-function makeSlot(slot, n) {
-    if (slot == '-')
-        return '<button data-position="' +
-            n + '">' + n + '</button>';
-    else
-        return '<button disabled>' + slot + '</button>';
-}
-
-function makeSlots(board, size) {
-    var html = '';
-    for (var i = 0; i < size; i++) {
-        for (var j = 0; j < size; j++) {
-            var n = (i*size + j);
-            html += makeSlot(board[n], n);
-        }
-        html += '<br>';
+function Game() {
+    function getParameter(name) {
+        return name + '=' + $('[data-' + name + ']').val();
     }
-    return html;
+
+    function getNewGameUri() {
+        return "/new?" + getParameter('size') + '&' + getParameter('vs');
+    }
+
+    function makeSlot(slot, n) {
+        var position = 'data-position="' + n + '"';
+        var annotation = (slot == '-') ? position : 'disabled'
+        return '<button ' + annotation + '></button>';
+    }
+
+    function makeSlots(board, size) {
+        var html = '';
+        for (var i = 0; i < size; i++) {
+            for (var j = 0; j < size; j++) {
+                var n = (i*size + j);
+                html += makeSlot(board[n], n);
+            }
+            html += '<br>';
+        }
+        return html;
+    }
+
+    function makePlayerId(json) {
+        var playerId = json['player-id'] ?
+            json['player-id'] : $('[data-player-id]').val();
+        return '<input type="hidden" value="' + playerId +
+            '" data-player-id></input>';
+    }
+
+    function move() {
+        var uri = 'move?' + getParameter('player-id') +
+            '&position=' + $(this).data('position');
+        $.getJSON(uri, create);
+    }
+
+    function create(json) {
+        var board = json['board'];
+        var size = Math.sqrt(board.length);
+        var playerId = makePlayerId(json);
+        var board = makeSlots(board, size);
+        $('[data-game]').html(board + playerId);
+        $('[data-position]').on('click', move);
+    }
+
+    this.start =  function() { $.getJSON(getNewGameUri(), create) };
+    this.join = function() { $.getJSON('/join', create) };
 }
 
-function move() {
-    var uri = 'move?' +
-        'position=' + $(this).data('position') +
-        '&player-id=' + $('[data-player-id]').val();
-    requestBoard(uri);
-}
-
-function getPlayerId(json) {
-    return json['player-id'] ? json['player-id'] : $('[data-player-id]').val();
-}
-
-function makeBoard(json) {
-    var board = json['board'];
-    var size = Math.sqrt(board.length);
-    var playerId = getPlayerId(json);
-    $('[data-game]').html(makeSlots(board, size));
-    $('[data-position]').on('click', move);
-    var hidden = '<input type="hidden" value="' + playerId +
-        '" data-player-id></input>';
-    $('[data-game]').append(hidden);
-    $('[data-game]').append(json['status']);
-}
-
-function requestBoard(uri) { $.getJSON(uri, makeBoard); }
-function makeNewGame() { requestBoard(getNewGameUri()); }
-function joinGame() { requestBoard('/join'); }
-$('[data-new]').on('click', makeNewGame);
-$('[data-join]').on('click', joinGame);
+var game = new Game();
+$('[data-new]').on('click', game.start);
+$('[data-join]').on('click', game.join);
