@@ -1,7 +1,6 @@
 (ns tictactoe-server.storage)
 
-(def cache (atom {}))
-
-(defn create [object] (reset! cache object))
+(def ^:private cache (atom {}))
+(def modify (partial swap! cache))
+(defn create [record] (reset! cache record))
 (defn retrieve [] @cache)
-(defn modify [f] (swap! cache f))

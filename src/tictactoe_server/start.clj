@@ -8,7 +8,8 @@
            [me.hkgumbs.tictactoe.main.java.rules DefaultRules]))
 
 (defn- positive-int? [i] (and (integer? i) (pos? i)))
-(def necessary-parameters {:size positive-int? :vs players/valid-type?})
+(def ^:private necessary-parameters
+  {:size positive-int? :vs players/valid-type?})
 (defn- contains-necessary-parameters? [parameters]
   (every? (fn [[k f]] (f (k parameters))) necessary-parameters))
 
@@ -32,7 +33,7 @@
           (storage/create (get-start-record parameters))))
       [(response/make 400)])))
 
-(def status-swapper {"ready" "waiting" "waiting" "ready"})
+(def ^:private status-swapper {"ready" "waiting" "waiting" "ready"})
 (defn- correct-status [{status :status :as record}]
   (assoc record :status (status-swapper status status)))
 (defmethod app/route "/join" [request]

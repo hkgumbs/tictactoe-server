@@ -3,7 +3,7 @@
             [tictactoe-server.app :as app]
             [tictactoe-server.json :as json]))
 
-(def template {:method "GET" :version "HTTP/1.1"})
+(def ^:private template {:method "GET" :version "HTTP/1.1"})
 
 (defn- make [input]
   (let [ouput-stream (java.io.ByteArrayOutputStream.)]

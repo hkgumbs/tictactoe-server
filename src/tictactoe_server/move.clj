@@ -18,7 +18,7 @@
   (util/respond
     (select-keys
       (storage/modify
-        #(into % (update-status player-id (players/make-moves record position))))
+        into (update-status player-id (players/make-moves record position)))
       [:board :status])))
 
 (defn- valid-move? [position player-id {:keys [player-ids board rules]}]

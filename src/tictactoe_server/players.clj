@@ -5,14 +5,14 @@
            [me.hkgumbs.tictactoe.main.java.player
             Algorithm Minimax NaiveChoice]))
 
-(def marks [Board$Mark/X Board$Mark/O])
+(def ^:private marks [Board$Mark/X Board$Mark/O])
 
-(def available-id (atom nil))
+(def ^:private available-id (atom nil))
 (defn- reset-available-id ([newval] (reset! available-id newval)))
 (defn- clear-available-id []
   (let [oldval @available-id] (reset-available-id nil) oldval))
 
-(def types ["local" "remote" "minimax" "naive"])
+(def ^:private types ["local" "remote" "minimax" "naive"])
 (defn valid-type? [vs] (.contains types vs))
 
 (defn- get-cpu [{:keys [vs rules]}]

@@ -9,5 +9,5 @@
 
   (it "can update objects by key"
     (storage/create {:size 3})
-    (storage/modify #(assoc % :size 4))
+    (storage/modify assoc :size 4)
     (should= {:size 4} (storage/retrieve))))
