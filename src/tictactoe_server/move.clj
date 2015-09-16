@@ -34,3 +34,10 @@
     (if (valid-move? position player-id record)
       (respond player-id position record)
       [(response/make 400)])))
+
+(defmethod app/route "/status" [{parameters :parameters}]
+  (let [player-id (:player-id (util/parse-parameters parameters))
+        {:keys [player-ids board] :as record} (storage/retrieve)]
+    (if (.contains player-ids player-id)
+      (util/respond {:board board :status (get-status player-id record)})
+      [(response/make 400)])))
