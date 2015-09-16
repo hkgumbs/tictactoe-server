@@ -28,12 +28,12 @@
   (if (= vs "remote") (get-remote-ids) (get-local-ids)))
 
 (defn- get-turn [_] (first marks))
-(defn set-record [record]
+(defn set-entry [entry]
   (let [setters {:cpu get-cpu :player-ids get-player-ids :turn get-turn}]
-    (into record (map (fn [[k f]] [k (f record)]) setters))))
+    (into entry (map (fn [[k f]] [k (f entry)]) setters))))
 
-(defn- make-move [position {:keys [board turn player-ids] :as record}]
-  (into record
+(defn- make-move [position {:keys [board turn player-ids] :as entry}]
+  (into entry
         {:player-ids (reverse player-ids)
          :turn (.other turn)
          :board (.add board position turn)}))
@@ -42,9 +42,9 @@
   (let [ongoing (not (.gameIsOver ^Rules rules board))]
     (if (and cpu ongoing) (.run ^Algorithm cpu board))))
 
-(defn make-moves [record & [position & more]]
-  (let [record (make-move position record)
-        cpu-move (get-cpu-move record)]
-    (if cpu-move (make-move cpu-move record) record)))
+(defn make-moves [entry & [position & more]]
+  (let [entry (make-move position entry)
+        cpu-move (get-cpu-move entry)]
+    (if cpu-move (make-move cpu-move entry) entry)))
 
 (defn join [] (clear-available-id))

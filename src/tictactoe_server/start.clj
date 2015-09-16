@@ -13,32 +13,32 @@
 (defn- contains-necessary-parameters? [parameters]
   (every? (fn [[k f]] (f (k parameters))) necessary-parameters))
 
-(defn- get-start-record [{:keys [size vs]}]
-  (players/set-record
+(defn- get-start-entry [{:keys [size vs]}]
+  (players/set-entry
     {:vs vs
      :rules (DefaultRules. size)
      :board (SquareBoard. size)
      :status "ready"}))
 
-(defn- get-public-fields [record & [player-id]]
-  {:board (:board record)
-   :status (:status record)
-   :player-id (if player-id player-id (first (:player-ids record)))})
+(defn- get-public-fields [entry & [player-id]]
+  {:board (:board entry)
+   :status (:status entry)
+   :player-id (if player-id player-id (first (:player-ids entry)))})
 
 (defmethod app/route "/new" [request]
   (let [parameters (util/parse-parameters (:parameters request))]
     (if (contains-necessary-parameters? parameters)
       (util/respond
         (get-public-fields
-          (storage/create (get-start-record parameters))))
+          (storage/create (get-start-entry parameters))))
       [(response/make 400)])))
 
 (def ^:private status-swapper {"ready" "waiting" "waiting" "ready"})
-(defn- correct-status [{status :status :as record}]
-  (assoc record :status (status-swapper status status)))
+(defn- correct-status [{status :status :as entry}]
+  (assoc entry :status (status-swapper status status)))
 (defmethod app/route "/join" [request]
-  (let [{vs :vs :as record} (storage/retrieve)
+  (let [{vs :vs :as entry} (storage/retrieve)
         player-id (players/join)]
     (if player-id
-      (util/respond (get-public-fields (correct-status record) player-id))
+      (util/respond (get-public-fields (correct-status entry) player-id))
       [(response/make 400)])))
