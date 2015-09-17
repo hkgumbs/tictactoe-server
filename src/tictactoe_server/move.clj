@@ -6,40 +6,39 @@
             [tictactoe-server.players :as players])
   (:import [me.hkgumbs.tictactoe.main.java.rules Rules]))
 
+(defn- get-game-state [request] (storage/-get (:storage request) :fake-id))
+(defn- update-game-state [request attributes]
+  (storage/-update (:storage request) :fake-id attributes))
+
 (defn- get-status [player-id {:keys [rules board player-ids]}]
   (cond
     (.gameIsOver ^Rules rules board) "terminated"
     (= player-id (first player-ids)) "ready"
     :default "waiting"))
-(defn- update-status [player-id entry]
-  (assoc entry :status (get-status player-id entry)))
 
-(defn- respond [player-id position entry game-state]
-  (util/respond
-    (select-keys
-      (storage/-update
-        game-state :fake-id
-        (update-status player-id (players/make-moves entry position)))
-      [:board :status])))
+(defn- respond [player-id {board :board :as entry}]
+  (util/respond {:board board :status (get-status player-id entry)}))
+(defn- process [check modifier {parameters :parameters :as request}]
+  (let [parameters (util/parse-parameters parameters)
+        entry (get-game-state request)]
+    (if (check parameters entry)
+      (respond
+        (:player-id parameters)
+        (update-game-state request (modifier parameters entry)))
+      [(response/make 400)])))
 
-(defn- valid-move? [position player-id {:keys [player-ids board rules]}]
+(defn- valid-move?
+  [{:keys [position player-id]} {:keys [player-ids board rules]}]
   (and
     (= player-id (first player-ids))
     (integer? position)
     (not (.gameIsOver ^Rules rules board))
     (.validateMove ^Rules rules board position)))
+(defn- move [{:keys [position]} entry] (players/make-moves entry position))
+(defmethod app/route "/move" [request]
+  (process valid-move? move request))
 
-(defmethod app/route "/move" [{parameters :parameters game-state :storage}]
-  (let [{:keys [position player-id]} (util/parse-parameters parameters)
-        entry (storage/-get game-state :fake-id)]
-    (if (valid-move? position player-id entry)
-      (respond player-id position entry game-state)
-      [(response/make 400)])))
-
-(defmethod app/route "/status" [{parameters :parameters game-state :storage}]
-  (let [player-id (:player-id (util/parse-parameters parameters))
-        entry (storage/-get game-state :fake-id)
-        {:keys [player-ids board]} entry]
-    (if (.contains player-ids player-id)
-      (util/respond {:board board :status (get-status player-id entry)})
-      [(response/make 400)])))
+(defn- valid-player? [{player-id :player-id} {player-ids :player-ids}]
+  (.contains player-ids player-id))
+(defmethod app/route "/status" [request]
+  (process valid-player? (constantly (get-game-state request)) request))
