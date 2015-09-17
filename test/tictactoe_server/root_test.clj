@@ -5,6 +5,6 @@
 
 (describe "/"
   (it "responds with HTML"
-    (let [response (socket/connect "/" "")]
+    (let [response (socket/connect (socket/store {}) "/" "")]
       (should (.startsWith response "HTTP/1.1 200 OK"))
       (should-contain #"Content-Type:( )?text/html" response))))

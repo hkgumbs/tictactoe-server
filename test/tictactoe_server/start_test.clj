@@ -7,17 +7,23 @@
   (:import [me.hkgumbs.tictactoe.main.java.board SquareBoard]))
 
 (describe "Request to /new"
+  (with game-state (socket/store {}))
   (for [opponent ["naive" "minimax" "local" "remote"]]
     (it (str "starts a new, ready game against " opponent)
       (socket/validate-body
-        (socket/connect "/new" (str "size=3&vs=" opponent))
+        (socket/connect @game-state "/new" (str "size=3&vs=" opponent))
         {:board (.toString (SquareBoard. 3))})))
   (it "400s on bad parameters"
-    (should= (response/make 400) (socket/connect "/new" "size=xyz&vs=naive"))
-    (should= (response/make 400) (socket/connect "/new" "size=-1&vs=naive"))))
+    (should= (response/make 400)
+             (socket/connect @game-state "/new" "size=xyz&vs=naive"))
+    (should= (response/make 400)
+             (socket/connect @game-state"/new" "size=-1&vs=naive"))))
 
 (describe "Request to /join"
+  (with game-state
+    (socket/store
+      {:player-ids [123 456] :status "waiting" :board (SquareBoard. 3)}))
   (it "joins a previously created game"
-    (socket/connect "/new" "size=3&vs=remote")
     (socket/validate-body
-      (socket/connect "/join" "") {:board (.toString (SquareBoard. 3))})))
+      (socket/connect @game-state "/join" "")
+      {:board (.toString (SquareBoard. 3))})))

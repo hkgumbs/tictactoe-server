@@ -14,11 +14,12 @@
 (defn- update-status [player-id entry]
   (assoc entry :status (get-status player-id entry)))
 
-(defn- respond [player-id position entry]
+(defn- respond [player-id position entry game-state]
   (util/respond
     (select-keys
-      (storage/modify
-        into (update-status player-id (players/make-moves entry position)))
+      (storage/-update
+        game-state :fake-id
+        (update-status player-id (players/make-moves entry position)))
       [:board :status])))
 
 (defn- valid-move? [position player-id {:keys [player-ids board rules]}]
@@ -28,16 +29,17 @@
     (not (.gameIsOver ^Rules rules board))
     (.validateMove ^Rules rules board position)))
 
-(defmethod app/route "/move" [{parameters :parameters}]
+(defmethod app/route "/move" [{parameters :parameters game-state :storage}]
   (let [{:keys [position player-id]} (util/parse-parameters parameters)
-        entry (storage/retrieve)]
+        entry (storage/-get game-state :fake-id)]
     (if (valid-move? position player-id entry)
-      (respond player-id position entry)
+      (respond player-id position entry game-state)
       [(response/make 400)])))
 
-(defmethod app/route "/status" [{parameters :parameters}]
+(defmethod app/route "/status" [{parameters :parameters game-state :storage}]
   (let [player-id (:player-id (util/parse-parameters parameters))
-        {:keys [player-ids board] :as entry} (storage/retrieve)]
+        entry (storage/-get game-state :fake-id)
+        {:keys [player-ids board]} entry]
     (if (.contains player-ids player-id)
       (util/respond {:board board :status (get-status player-id entry)})
       [(response/make 400)])))

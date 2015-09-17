@@ -1,6 +1,10 @@
 (ns tictactoe-server.storage)
 
-(def ^:private cache (atom {}))
-(def modify (partial swap! cache))
-(defn create [entry] (reset! cache entry))
-(defn retrieve [] @cache)
+(defprotocol Storage
+  (-get [this id])
+  (-update [this id attributes]))
+
+(defrecord AtomStorage [^clojure.lang.Atom state]
+  Storage
+  (-get [this id] @state)
+  (-update [this id attributes] (swap! state into attributes)))

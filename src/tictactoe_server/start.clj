@@ -28,17 +28,19 @@
 (defmethod app/route "/new" [request]
   (let [parameters (util/parse-parameters (:parameters request))]
     (if (contains-necessary-parameters? parameters)
-      (util/respond
-        (get-public-fields
-          (storage/create (get-start-entry parameters))))
+      (let [game-state (:storage request)]
+        (util/respond
+          (get-public-fields
+            (storage/-update
+              game-state :fake-id (get-start-entry parameters)))))
       [(response/make 400)])))
 
 (def ^:private status-swapper {"ready" "waiting" "waiting" "ready"})
 (defn- correct-status [{status :status :as entry}]
   (assoc entry :status (status-swapper status status)))
-(defmethod app/route "/join" [request]
-  (let [{vs :vs :as entry} (storage/retrieve)
-        player-id (players/join)]
-    (if player-id
-      (util/respond (get-public-fields (correct-status entry) player-id))
-      [(response/make 400)])))
+(defmethod app/route "/join" [{game-state :storage}]
+  (if-let [player-id (players/join)]
+    (util/respond
+      (get-public-fields
+        (correct-status (storage/-get game-state :fake-id)) player-id))
+    [(response/make 400)]))
