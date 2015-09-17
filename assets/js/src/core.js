@@ -1,4 +1,6 @@
 function Game() {
+    var self = this;
+
     function getParameter(name) {
         return name + '=' + $('[data-' + name + ']').val();
     }
@@ -25,44 +27,32 @@ function Game() {
         return html;
     }
 
-    function makeHiddenInput(key, value) {
-        return '<input type="hidden" value="' + value +
-            '" data-' + key + '></input>';
+    function update(json) {
+        var board = json['board'];
+        var size = Math.sqrt(board.length);
+        var slots = makeSlots(board, size);
+        $('[data-game]').html(slots);
+        $('[data-position]').on('click', move);
     }
 
-    function makePlayerId(json) {
-        var playerId = json['player-id'] ?
-            json['player-id'] : $('[data-player-id]').val();
-        return makeHiddenInput('player-id', playerId);
-    }
-
-    function makeStatus(json) {
-        return makeHiddenInput('status', json['status']);
-    }
-
-    function retry() {
-        $.getJSON('/status?' + getParameter('player-id'), create);
-    }
-
-    function attachListener(json) {
-        var waiting = json['status'] == 'waiting';
-        waiting ? retry() : $('[data-position]').on('click', move);
+    function listenForStatusChange (json) {
+        self.status = json['status'];
+        if (!json['status'] || json['status'] == 'waiting') {
+            var uri = '/status?player-id=' + self.playerId;
+            $.getJSON(uri, listenForStatusChange)
+        } else
+            update(json);
     }
 
     function move() {
-        var uri = 'move?' + getParameter('player-id') +
+        var uri = 'move?player-id=' + self.playerId +
             '&position=' + $(this).data('position');
-        $.getJSON(uri, create);
+        $.getJSON(uri, listenForStatusChange);
     }
 
     function create(json) {
-        var board = json['board'];
-        var size = Math.sqrt(board.length);
-        var board = makeSlots(board, size);
-        var playerId = makePlayerId(json);
-        var status = makeStatus(json);
-        $('[data-game]').html(board + playerId + status);
-        attachListener(json);
+        self.playerId = json['player-id'];
+        listenForStatusChange(json);
     }
 
     this.start =  function() { $.getJSON(getNewGameUri(), create) };
