@@ -10,7 +10,7 @@
 (def ^:private rules ^Rules (DefaultRules. 3))
 (def ^:private storage-template
   {:board (SquareBoard. 3) :rules rules :status "ready" :turn Board$Mark/X})
-(defn- initialize [entry] (socket/store (into storage-template entry)))
+(defn- initialize [game-state] (socket/store (into storage-template game-state)))
 
 (def first-player-id 12345)
 (def second-player-id 67890)

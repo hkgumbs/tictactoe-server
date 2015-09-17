@@ -16,15 +16,15 @@
     (= player-id (first player-ids)) "ready"
     :default "waiting"))
 
-(defn- respond [player-id {board :board :as entry}]
-  (util/respond {:board board :status (get-status player-id entry)}))
+(defn- respond [player-id {board :board :as game-state}]
+  (util/respond {:board board :status (get-status player-id game-state)}))
 (defn- process [check modifier {parameters :parameters :as request}]
   (let [parameters (util/parse-parameters parameters)
-        entry (get-game-state request)]
-    (if (check parameters entry)
+        game-state (get-game-state request)]
+    (if (check parameters game-state)
       (respond
         (:player-id parameters)
-        (update-game-state request (modifier parameters entry)))
+        (update-game-state request (modifier parameters game-state)))
       [(response/make 400)])))
 
 (defn- valid-move?
@@ -34,7 +34,7 @@
     (integer? position)
     (not (.gameIsOver ^Rules rules board))
     (.validateMove ^Rules rules board position)))
-(defn- move [{:keys [position]} entry] (players/make-moves entry position))
+(defn- move [{:keys [position]} game-state] (players/make-moves game-state position))
 (defmethod app/route "/move" [request]
   (process valid-move? move request))
 

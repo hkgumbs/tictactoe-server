@@ -29,4 +29,4 @@
 (defn validate-body [response parameters]
   (includes-parameters (second (.split response "\r\n\r\n" 2)) parameters))
 
-(defn store [entry] (AtomStorage. (atom entry)))
+(defn store [game-state] (AtomStorage. (atom game-state)))

@@ -13,17 +13,16 @@
 (defn- contains-necessary-parameters? [parameters]
   (every? (fn [[k f]] (f (k parameters))) necessary-parameters))
 
-(defn- get-start-entry [{:keys [size vs]}]
-  (players/set-entry
+(defn- get-start-game-state [{:keys [size vs]}]
+  (players/set-game-state
     {:vs vs
      :rules (DefaultRules. size)
-     :board (SquareBoard. size)
-     :status "ready"}))
+     :board (SquareBoard. size)}))
 
-(defn- get-public-fields [entry & [player-id]]
-  {:board (:board entry)
-   :status (:status entry)
-   :player-id (if player-id player-id (first (:player-ids entry)))})
+(defn- get-public-fields [game-state & [player-id]]
+  {:board (:board game-state)
+   :status "ready"
+   :player-id (if player-id player-id (first (:player-ids game-state)))})
 
 (defmethod app/route "/new" [request]
   (let [parameters (util/parse-parameters (:parameters request))]
@@ -32,12 +31,12 @@
         (util/respond
           (get-public-fields
             (storage/-update
-              game-state :fake-id (get-start-entry parameters)))))
+              game-state :fake-id (get-start-game-state parameters)))))
       [(response/make 400)])))
 
 (def ^:private status-swapper {"ready" "waiting" "waiting" "ready"})
-(defn- correct-status [{status :status :as entry}]
-  (assoc entry :status (status-swapper status status)))
+(defn- correct-status [{status :status :as game-state}]
+  (assoc game-state :status (status-swapper status status)))
 (defmethod app/route "/join" [{game-state :storage}]
   (if-let [player-id (players/join)]
     (util/respond
