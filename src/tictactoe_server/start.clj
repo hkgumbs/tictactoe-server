@@ -2,7 +2,6 @@
   (:require [webserver.response :as response]
             [tictactoe-server.app :as app]
             [tictactoe-server.storage :as storage]
-            [tictactoe-server.util :as util]
             [tictactoe-server.players :as players])
   (:import [me.hkgumbs.tictactoe.main.java.board SquareBoard]
            [me.hkgumbs.tictactoe.main.java.rules DefaultRules]))
@@ -24,22 +23,17 @@
    :status "ready"
    :player-id (if player-id player-id (first (:player-ids game-state)))})
 
-(defmethod app/route "/new" [request]
-  (let [parameters (util/parse-parameters (:parameters request))]
-    (if (contains-necessary-parameters? parameters)
-      (let [game-state (:storage request)]
-        (util/respond
-          (get-public-fields
-            (storage/-update
-              game-state :fake-id (get-start-game-state parameters)))))
-      [(response/make 400)])))
+(defmethod app/route "/new" [{parameters :parameters :as request}]
+  (if (contains-necessary-parameters? parameters)
+    (let [game-state (:storage request)]
+      (get-public-fields
+        (storage/-update
+          game-state :fake-id (get-start-game-state parameters))))))
 
 (def ^:private status-swapper {"ready" "waiting" "waiting" "ready"})
 (defn- correct-status [{status :status :as game-state}]
   (assoc game-state :status (status-swapper status status)))
 (defmethod app/route "/join" [{game-state :storage}]
   (if-let [player-id (players/join)]
-    (util/respond
-      (get-public-fields
-        (correct-status (storage/-get game-state :fake-id)) player-id))
-    [(response/make 400)]))
+    (get-public-fields
+      (correct-status (storage/-get game-state :fake-id)) player-id)))

@@ -2,7 +2,6 @@
   (:require [webserver.response :as response]
             [tictactoe-server.app :as app]
             [tictactoe-server.storage :as storage]
-            [tictactoe-server.util :as util]
             [tictactoe-server.players :as players])
   (:import [me.hkgumbs.tictactoe.main.java.rules Rules]))
 
@@ -16,16 +15,14 @@
     (= player-id (first player-ids)) "ready"
     :default "waiting"))
 
-(defn- respond [player-id {board :board :as game-state}]
-  (util/respond {:board board :status (get-status player-id game-state)}))
+(defn- get-public-fields [player-id {board :board :as game-state}]
+  {:board board :status (get-status player-id game-state)})
 (defn- process [check modifier {parameters :parameters :as request}]
-  (let [parameters (util/parse-parameters parameters)
-        game-state (get-game-state request)]
+  (let [game-state (get-game-state request)]
     (if (check parameters game-state)
-      (respond
+      (get-public-fields
         (:player-id parameters)
-        (update-game-state request (modifier parameters game-state)))
-      [(response/make 400)])))
+        (update-game-state request (modifier parameters game-state))))))
 
 (defn- valid-move?
   [{:keys [position player-id]} {:keys [player-ids board rules]}]
