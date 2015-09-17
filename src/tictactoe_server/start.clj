@@ -18,22 +18,13 @@
      :rules (DefaultRules. size)
      :board (SquareBoard. size)}))
 
-(defn- get-public-fields [game-state & [player-id]]
-  {:board (:board game-state)
-   :status "ready"
-   :player-id (if player-id player-id (first (:player-ids game-state)))})
-
+(defn- map-first-player-id [game-state]
+  {:player-id (first (:player-ids game-state))})
 (defmethod app/route "/new" [{parameters :parameters :as request}]
   (if (contains-necessary-parameters? parameters)
-    (let [game-state (:storage request)]
-      (get-public-fields
-        (storage/-update
-          game-state :fake-id (get-start-game-state parameters))))))
+    (map-first-player-id
+      (storage/-update
+        (:storage request) :fake-id (get-start-game-state parameters)))))
 
-(def ^:private status-swapper {"ready" "waiting" "waiting" "ready"})
-(defn- correct-status [{status :status :as game-state}]
-  (assoc game-state :status (status-swapper status status)))
 (defmethod app/route "/join" [{game-state :storage}]
-  (if-let [player-id (players/join)]
-    (get-public-fields
-      (correct-status (storage/-get game-state :fake-id)) player-id)))
+  (if-let [player-id (players/join)] {:player-id player-id}))
