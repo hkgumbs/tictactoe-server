@@ -1,6 +1,5 @@
 (ns tictactoe-server.start-test
   (:require [speclj.core :refer :all]
-            [webserver.response :as response]
             [tictactoe-server.app]
             [tictactoe-server.start]
             [tictactoe-server.storage :as storage]
@@ -18,11 +17,9 @@
       (should-contain
         player-id-matcher
         (socket/connect @game-state "/new" (str "size=3&vs=" opponent)))))
-  (it "400s on bad parameters"
-    (should= (response/make 400)
-             (socket/connect @game-state "/new" "size=xyz&vs=naive"))
-    (should= (response/make 400)
-             (socket/connect @game-state"/new" "size=-1&vs=naive"))))
+  (it "returns nothing on bad parameters"
+    (should= "" (socket/connect @game-state "/new" "size=xyz&vs=naive"))
+    (should= "" (socket/connect @game-state"/new" "size=-1&vs=naive"))))
 
 (describe "Request to /join"
   (with game-state (socket/store {}))

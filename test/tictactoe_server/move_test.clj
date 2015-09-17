@@ -1,5 +1,4 @@
 (ns tictactoe-server.move-test (:require [speclj.core :refer :all]
-            [webserver.response :as response]
             [tictactoe-server.storage]
             [tictactoe-server.move]
             [tictactoe-server.mock-socket :as socket])
@@ -31,9 +30,7 @@
                   (.add 8 Board$Mark/X) (.add 0 Board$Mark/O)
                   (.add 7 Board$Mark/X) (.add 1 Board$Mark/O)
                   (.add 6 Board$Mark/X) .toString)})
-    (should=
-      (response/make 400)
-      (socket/connect @storage "/move" (get-parameters 8)))))
+    (should= "" (socket/connect @storage "/move" (get-parameters 8)))))
 
 (describe "Minimax"
   (with storage
@@ -66,13 +63,11 @@
     (socket/validate-body
       (socket/connect @storage "/move" (get-parameters 0))
       {:board (-> (SquareBoard. 3) (.add 0 Board$Mark/X) .toString)})
-    (should=
-       (response/make 400)
-       (socket/connect @storage "/move" (get-parameters 1))))
+    (should= "" (socket/connect @storage "/move" (get-parameters 1))))
 
   (it "uses same game when joined"
-      (should= (response/make 400)
-               (socket/connect @storage "/move" (get-parameters 0 second-player-id)))
+      (should=
+        "" (socket/connect @storage "/move" (get-parameters 0 second-player-id)))
       (socket/validate-body
         (socket/connect @storage "/move" (get-parameters 0))
         {:board (-> (SquareBoard. 3) (.add 0 Board$Mark/X) .toString)})
@@ -88,31 +83,25 @@
       (should-not-contain
         (str first-player-id) (socket/connect @storage "/join" "")))
 
-  (it "400s when no game is available to join"
+  (it "returns nothing when no game is available to join"
     (let [game-state (initialize
                        {:vs "naive" :player-ids [first-player-id]})]
-      (should= (response/make 400) (socket/connect game-state "/join" ""))))
+      (should= "" (socket/connect game-state "/join" ""))))
 
-  (it "400s when game has already been joined"
+  (it "return nothing when game has already been joined"
     (let [game-state (initialize
                        {:vs "remote"
                         :player-ids [first-player-id second-player-id]})]
       (socket/connect game-state "/new" "size=3&vs=remote")
       (socket/connect game-state "/join" "")
-      (should= (response/make 400) (socket/connect game-state "/join" "")))))
+      (should= "" (socket/connect game-state "/join" "")))))
 
 (describe "Invalid input to /move"
   (with storage (initialize {:vs "local" :player-ids [first-player-id]}))
-  (it "400s"
-    (should=
-      (response/make 400)
-      (socket/connect @storage "/move" (get-parameters -1)))
-    (should=
-       (response/make 400)
-       (socket/connect @storage "/move" (get-parameters "foobar")))
-    (should=
-       (response/make 400)
-       (socket/connect @storage "/move" (get-parameters 0 "foobar")))))
+  (it "returns nothing on invalid parameters"
+    (should= "" (socket/connect @storage "/move" (get-parameters -1)))
+    (should= "" (socket/connect @storage "/move" (get-parameters "foobar")))
+    (should= "" (socket/connect @storage "/move" (get-parameters 0 "foobar")))))
 
 (describe "Request to /status"
   (with storage
@@ -127,7 +116,5 @@
       (socket/connect @storage "/status" (str "player-id=" second-player-id))
       {:status "waiting"
        :board (-> (SquareBoard. 3) .toString)}))
-  (it "400s with inactive id"
-    (should=
-      (response/make 400)
-      (socket/connect @storage "/status" "player-id=11111"))))
+  (it "returns nothing with inactive id"
+    (should= "" (socket/connect @storage "/status" "player-id=11111"))))

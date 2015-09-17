@@ -12,7 +12,7 @@ function Game() {
     function makeSlot(slot, n) {
         var position = 'data-position="' + n + '"';
         var annotation = (slot == '-') ? position : 'disabled'
-        return '<button ' + annotation + '></button>';
+        return '<button ' + annotation + '>' + slot + '</button>';
     }
 
     function makeSlots(board, size) {

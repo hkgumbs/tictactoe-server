@@ -5,13 +5,14 @@
             [clojure.java.io :as io]))
 
 (defmulti route :uri)
-(defmethod route :default [_] :unmatched)
+(defmethod route :default [_])
 (defmethod route "/" [_] (slurp "assets/index.html"))
 
 (defn map-parameters [request]
   (update request :parameters #(if % (util/parse-parameters %))))
 
+(defn- write [response output-stream]
+  (doseq [r response] (io/copy r output-stream)))
 (defn handle [socket request]
-  (if-let [response (util/respond (route (map-parameters request)))]
-    (if-not (= response :unmatched)
-      (do (doseq [r response] (io/copy r (.getOutputStream socket))) true))))
+  (if-let [response (route (map-parameters request))]
+    (do (write (util/respond response) (.getOutputStream socket)) true)))
