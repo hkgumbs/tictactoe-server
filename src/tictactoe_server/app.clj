@@ -13,6 +13,7 @@
 
 (defn- write [response output-stream]
   (doseq [r response] (io/copy r output-stream)))
+
 (defn handle [socket request]
   (if-let [response (route (map-parameters request))]
     (do (write (util/respond response) (.getOutputStream socket)) true)))

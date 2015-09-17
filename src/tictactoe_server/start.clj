@@ -20,11 +20,10 @@
 
 (defn- map-first-player-id [game-state]
   {:player-id (first (:player-ids game-state))})
-(defmethod app/route "/new" [{parameters :parameters :as request}]
+(defmethod app/route "/new" [{parameters :parameters store :storage}]
   (if (contains-necessary-parameters? parameters)
     (map-first-player-id
-      (storage/-update
-        (:storage request) :fake-id (get-start-game-state parameters)))))
+      (storage/-update store :fake-id (get-start-game-state parameters)))))
 
 (defmethod app/route "/join" [{game-state :storage}]
   (if-let [player-id (players/join)] {:player-id player-id}))
