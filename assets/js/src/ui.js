@@ -1,4 +1,4 @@
-function Displayer() {
+function UI() {
     function makeSlot(slot, n) {
         var position = 'data-position="' + n + '"';
         var annotation = (slot == '-') ? position : 'disabled'
@@ -25,5 +25,10 @@ function Displayer() {
         $('[data-position]').on('click', callback);
     }
 
+    function load(element) {
+        $(element).text('...');
+    }
+
     this.update = update;
+    this.load = load;
 }

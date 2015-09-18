@@ -1,6 +1,6 @@
 function Game() {
     var self = this;
-    self.displayer = new Displayer();
+    self.ui = new UI();
 
     function getParameter(name) {
         return name + '=' + $('[data-' + name + ']').val();
@@ -17,7 +17,7 @@ function Game() {
     function listenForStatusChange (json) {
         self.status = json['status'];
         if (self.status && self.status != 'waiting')
-            self.displayer.update(json, move);
+            self.ui.update(json, move);
         else {
             var uri = 'status?' + getIdParameters();
             $.getJSON(uri, listenForStatusChange)
@@ -25,6 +25,7 @@ function Game() {
     }
 
     function move() {
+        self.ui.load(this);
         var uri = 'move?' + getIdParameters() +
             '&position=' + $(this).data('position');
         $.getJSON(uri, listenForStatusChange);
