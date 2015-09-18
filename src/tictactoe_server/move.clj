@@ -11,10 +11,12 @@
   (storage/-update store (:game-id parameters) attributes))
 
 (defn- get-status [player-id {:keys [rules board player-ids]}]
-  (cond
-    (.gameIsOver ^Rules rules board) "terminated"
-    (= player-id (first player-ids)) "ready"
-    :default "waiting"))
+  (if-let [winner (.determineWinner ^Rules rules board)]
+    winner
+    (cond
+      (.gameIsOver ^Rules rules board) "tie"
+      (= player-id (first player-ids)) "ready"
+      :default "waiting")))
 
 (defn- get-public-fields [player-id {board :board :as game-state}]
   {:board board :status (get-status player-id game-state)})
