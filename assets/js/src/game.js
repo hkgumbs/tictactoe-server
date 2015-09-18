@@ -18,14 +18,15 @@ function Game() {
         self.status = json['status'];
         if (self.status && self.status != 'waiting')
             self.ui.update(json, move);
-        else {
-            var uri = 'status?' + getIdParameters();
-            $.getJSON(uri, listenForStatusChange)
-        }
+        else
+            setTimeout(500, function() {
+                var uri = 'status?' + getIdParameters();
+                $.getJSON(uri, listenForStatusChange)
+            });
     }
 
     function move() {
-        self.ui.load(this);
+        self.ui.load(this, self.mark);
         var uri = 'move?' + getIdParameters() +
             '&position=' + $(this).data('position');
         $.getJSON(uri, listenForStatusChange);

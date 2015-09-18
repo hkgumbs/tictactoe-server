@@ -7,9 +7,9 @@ function UI() {
 
     function makeSlots(board, size) {
         var html = '';
-        for (var i = 0; i < size; i++) {
-            for (var j = 0; j < size; j++) {
-                var n = (i*size + j);
+        for (var row = 0; row < size; row++) {
+            for (var column = 0; column < size; column++) {
+                var n = (row*size + column);
                 html += makeSlot(board[n], n);
             }
             html += '<br>';

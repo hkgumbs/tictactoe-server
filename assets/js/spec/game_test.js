@@ -11,11 +11,26 @@ function makeResponse(object) {
 
 function makeStartResponse(playerId, gameId, mark) {
     return makeResponse({
-        'player-id':playerId, 'game-id': gameId, 'mark': mark});
+        'player-id':playerId,
+        'game-id': gameId,
+        'mark': mark
+    });
 }
 
 function makeStatusResponse(board, status) {
     return makeResponse({'board': board, 'status': status});
+}
+
+function before() {
+    jasmine.Ajax.install();
+    setFixtures('<div data-game></div>');
+    spyOn(window, 'setTimeout').and.callFake(function(_, f){
+        f();
+    });
+}
+
+function after() {
+    jasmine.Ajax.uninstall();
 }
 
 describe('New game', function() {
@@ -27,16 +42,14 @@ describe('New game', function() {
         appendSetFixtures('<input data-size="' + size + '"></input>');
         appendSetFixtures('<input data-vs="naive"></input>');
         game.start();
-        var response = makeStartResponse(playerId, gameId, 'X');
-        requests.mostRecent().respondWith(response);
-        requests.mostRecent().respondWith(makeStatusResponse(board, "ready"));
+        var startResponse = makeStartResponse(playerId, gameId, 'X');
+        var statusResponse = makeStatusResponse(board, "ready");
+        requests.mostRecent().respondWith(startResponse);
+        requests.mostRecent().respondWith(statusResponse);
     }
 
-    beforeEach(function() {
-        jasmine.Ajax.install();
-        setFixtures('<div data-game></div>');
-    });
-    afterEach(function() {jasmine.Ajax.uninstall()});
+    beforeEach(before);
+    afterEach(after);
 
     it('creates buttons and data based on JSON response', function() {
         testButtonSetup(3, PID, GID);
@@ -55,8 +68,8 @@ describe('New game', function() {
         var mostRecent = requests.mostRecent();
         expect(mostRecent.url).toMatch(/^move\?/);
         expect(mostRecent.url).toMatch(/position=1/);
-        expect(mostRecent.url).toMatch(/player-id=12345/);
-        expect(mostRecent.url).toMatch(/game-id=77777/);
+        expect(mostRecent.url).toMatch('player-id=' + PID);
+        expect(mostRecent.url).toMatch('game-id=' + GID);
 
         var firstNaiveMove = makeStatusResponse('XO-------', 'ready');
         mostRecent.respondWith(firstNaiveMove);
@@ -79,11 +92,8 @@ describe('New game', function() {
 
 describe('Game against remote opponent', function() {
     var firstJoinMove = makeStatusResponse('X--------', "ready");
-    beforeEach(function() {
-        jasmine.Ajax.install();
-        setFixtures('<div data-game></div>');
-    });
-    afterEach(function() {jasmine.Ajax.uninstall()});
+    beforeEach(before);
+    afterEach(after);
 
     it('is joined by join', function() {
         game.join();
@@ -104,8 +114,8 @@ describe('Game against remote opponent', function() {
             expect(game.status).toBe('waiting');
             var url = requests.mostRecent().url;
             expect(url).toMatch(/^status\?/);
-            expect(url).toMatch(/player-id=12345/);
-            expect(url).toMatch(/game-id=77777/);
+            expect(url).toMatch('player-id=' + PID);
+            expect(url).toMatch('game-id=' + GID);
         }
 
         requests.mostRecent().respondWith(firstJoinMove);
