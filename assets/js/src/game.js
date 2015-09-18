@@ -22,10 +22,10 @@ function Game() {
         self.status = getStatus(json);
         self.ui.update(self.status, json['board'], move);
         if (self.status == 'waiting')
-            setTimeout(500, function() {
+            setTimeout(function() {
                 var uri = 'status?' + getIdParameters();
                 $.getJSON(uri, listenForStatusChange)
-            });
+            }, 500);
     }
 
     function move() {

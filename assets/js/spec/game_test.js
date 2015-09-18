@@ -24,7 +24,7 @@ function makeStatusResponse(board, status) {
 function before() {
     jasmine.Ajax.install();
     setFixtures('<div data-game></div>');
-    spyOn(window, 'setTimeout').and.callFake(function(_, f){
+    spyOn(window, 'setTimeout').and.callFake(function(f, _){
         f();
     });
 }
