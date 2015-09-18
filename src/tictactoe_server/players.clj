@@ -23,11 +23,12 @@
 
 (defn set-game-state [game-state]
   (let [player-ids (get-player-ids game-state)
+        mark (first marks)
         state {:cpu (get-cpu game-state)
                :player-ids player-ids
                :available-id (second player-ids)
-               :turn (first marks)}]
-    [(get-unique-id) (into game-state state)]))
+               :turn mark}]
+    [(get-unique-id) mark (into game-state state)]))
 
 (defn- make-move [position {:keys [board turn player-ids] :as game-state}]
   (into game-state
@@ -48,4 +49,5 @@
   (first (filter #(:available-id (second %)) game-states)))
 (defn join [game-states]
   (if-let [[game-id game-state] (find-available game-states)]
-    [game-id (:available-id game-state) (dissoc game-state :available-id)]))
+    [game-id (second marks)
+     (:available-id game-state) (dissoc game-state :available-id)]))
