@@ -56,6 +56,7 @@ describe('New game', function() {
         expect(mostRecent.url).toMatch(/^move\?/);
         expect(mostRecent.url).toMatch(/position=1/);
         expect(mostRecent.url).toMatch(/player-id=12345/);
+        expect(mostRecent.url).toMatch(/game-id=77777/);
 
         var firstNaiveMove = makeStatusResponse('XO-------', 'ready');
         mostRecent.respondWith(firstNaiveMove);
@@ -101,7 +102,10 @@ describe('Game against remote opponent', function() {
             var waitingResponse = makeStatusResponse('---------', 'waiting');
             requests.mostRecent().respondWith(waitingResponse);
             expect(game.status).toBe('waiting');
-            expect(requests.mostRecent().url).toBe('/status?player-id=12345');
+            var url = requests.mostRecent().url;
+            expect(url).toMatch(/^status\?/);
+            expect(url).toMatch(/player-id=12345/);
+            expect(url).toMatch(/game-id=77777/);
         }
 
         requests.mostRecent().respondWith(firstJoinMove);

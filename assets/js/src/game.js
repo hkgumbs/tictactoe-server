@@ -6,7 +6,7 @@ function Game() {
     }
 
     function getNewGameUri() {
-        return "/new?" + getParameter('size') + '&' + getParameter('vs');
+        return "new?" + getParameter('size') + '&' + getParameter('vs');
     }
 
     function makeSlot(slot, n) {
@@ -35,18 +35,22 @@ function Game() {
         $('[data-position]').on('click', move);
     }
 
+    function getIdParameters() {
+        return 'player-id=' + self.playerId + '&game-id=' + self.gameId;
+    }
+
     function listenForStatusChange (json) {
         self.status = json['status'];
         if (self.status && self.status != 'waiting')
             update(json);
         else {
-            var uri = '/status?player-id=' + self.playerId;
+            var uri = 'status?' + getIdParameters();
             $.getJSON(uri, listenForStatusChange)
         }
     }
 
     function move() {
-        var uri = 'move?player-id=' + self.playerId +
+        var uri = 'move?' + getIdParameters() +
             '&position=' + $(this).data('position');
         $.getJSON(uri, listenForStatusChange);
     }
