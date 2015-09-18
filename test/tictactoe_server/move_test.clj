@@ -6,16 +6,21 @@
            [me.hkgumbs.tictactoe.main.java.rules DefaultRules Rules]
            [me.hkgumbs.tictactoe.main.java.player Minimax NaiveChoice]))
 
-(def ^:private rules ^Rules (DefaultRules. 3))
-(def ^:private storage-template
-  {:board (SquareBoard. 3) :rules rules :status "ready" :turn Board$Mark/X})
-(defn- initialize [game-state] (socket/store (into storage-template game-state)))
+(defn- get-status-params [gid pid] (str "game-id=" gid "&player-id=" pid))
 
+(def default-game-id 77777)
 (def first-player-id 12345)
 (def second-player-id 67890)
 (defn- get-parameters
   ([position] (get-parameters position first-player-id))
-  ([position player-id] (str "position=" position "&player-id=" player-id)))
+  ([position player-id]
+   (str (get-status-params default-game-id player-id) "&position=" position)))
+
+(def ^:private rules ^Rules (DefaultRules. 3))
+(def ^:private storage-template
+  {:board (SquareBoard. 3) :rules rules :status "ready" :turn Board$Mark/X})
+(defn- initialize [game-state]
+  (socket/store default-game-id (into storage-template game-state)))
 
 (describe "Naive CPU"
   (with storage
@@ -110,11 +115,12 @@
        :player-ids [first-player-id second-player-id]}))
   (it "returns empty board and status"
     (socket/validate-body
-      (socket/connect @storage "/status" (str "player-id=" first-player-id))
+      (socket/connect @storage "/status" (get-parameters first-player-id))
       {:status "ready" :board (.toString (SquareBoard. 3))})
     (socket/validate-body
-      (socket/connect @storage "/status" (str "player-id=" second-player-id))
-      {:status "waiting"
-       :board (-> (SquareBoard. 3) .toString)}))
-  (it "returns nothing with inactive id"
-    (should= "" (socket/connect @storage "/status" "player-id=11111"))))
+      (socket/connect
+        @storage "/status" (get-status-params default-game-id second-player-id) )
+      {:status "waiting" :board (-> (SquareBoard. 3) .toString)}))
+  (it "returns nothing with inactive ids"
+    (should=
+      "" (socket/connect @storage "/status" "player-id=11111&game-id=77777"))))

@@ -7,11 +7,6 @@
 
 (def ^:private marks [Board$Mark/X Board$Mark/O])
 
-(def ^:private available-id (atom nil))
-(defn- reset-available-id ([newval] (reset! available-id newval)))
-(defn- clear-available-id []
-  (let [oldval @available-id] (reset-available-id nil) oldval))
-
 (def ^:private types ["local" "remote" "minimax" "naive"])
 (defn valid-type? [vs] (.contains types vs))
 
@@ -20,17 +15,19 @@
 
 (defn- get-unique-id []
   (Integer. ^String (apply str (repeatedly 5 #(rand-int 10)))))
-(defn- get-local-ids [] (clear-available-id) [(get-unique-id)])
-(defn- get-remote-ids []
-  (let [player-ids [(get-unique-id) (get-unique-id)]]
-    (reset-available-id (second player-ids)) player-ids))
+
+(defn- get-local-ids [] [(get-unique-id)])
+(defn- get-remote-ids [] [(get-unique-id) (get-unique-id)])
 (defn- get-player-ids [{vs :vs}]
   (if (= vs "remote") (get-remote-ids) (get-local-ids)))
 
-(defn- get-turn [_] (first marks))
 (defn set-game-state [game-state]
-  (let [setters {:cpu get-cpu :player-ids get-player-ids :turn get-turn}]
-    (into game-state (map (fn [[k f]] [k (f game-state)]) setters))))
+  (let [player-ids (get-player-ids game-state)
+        state {:cpu (get-cpu game-state)
+               :player-ids player-ids
+               :available-id (second player-ids)
+               :turn (first marks)}]
+    [(get-unique-id) (into game-state state)]))
 
 (defn- make-move [position {:keys [board turn player-ids] :as game-state}]
   (into game-state
@@ -42,9 +39,13 @@
   (let [ongoing (not (.gameIsOver ^Rules rules board))]
     (if (and cpu ongoing) (.run ^Algorithm cpu board))))
 
-(defn make-moves [game-state & [position & more]]
+(defn make-moves [game-state position]
   (let [game-state (make-move position game-state)
         cpu-move (get-cpu-move game-state)]
     (if cpu-move (make-move cpu-move game-state) game-state)))
 
-(defn join [] (clear-available-id))
+(defn- find-available [game-states]
+  (first (filter #(:available-id (second %)) game-states)))
+(defn join [game-states]
+  (if-let [[game-id game-state] (find-available game-states)]
+    [game-id (:available-id game-state) (dissoc game-state :available-id)]))

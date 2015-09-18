@@ -18,12 +18,17 @@
      :rules (DefaultRules. size)
      :board (SquareBoard. size)}))
 
-(defn- map-first-player-id [game-state]
-  {:player-id (first (:player-ids game-state))})
+(defn- get-public-fields [[game-id {:keys [player-ids]}]]
+  {:player-id (first player-ids) :game-id game-id})
 (defmethod app/route "/new" [{parameters :parameters store :storage}]
   (if (contains-necessary-parameters? parameters)
-    (map-first-player-id
-      (storage/-update store :fake-id (get-start-game-state parameters)))))
+    (get-public-fields
+      (let [[game-id game-state :as fields] (get-start-game-state parameters)]
+        (storage/-update store game-id game-state) fields))))
 
-(defmethod app/route "/join" [{game-state :storage}]
-  (if-let [player-id (players/join)] {:player-id player-id}))
+(defmethod app/route "/join" [{store :storage}]
+  (let [game-states (storage/-list store)]
+    (if-let [[game-id player-id new-game-state] (players/join game-states)]
+      (do
+        (storage/-update store game-id new-game-state)
+        {:player-id player-id :game-id game-id}))))
