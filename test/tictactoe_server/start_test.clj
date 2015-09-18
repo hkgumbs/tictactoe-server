@@ -32,4 +32,15 @@
       (should=
         ((storage/-get @game-state game-id) :player-ids)
         (map (partial get-id player-matcher) [p1 p2]))
-      (should= game-id (get-id game-matcher p2)))))
+      (should= game-id (get-id game-matcher p2))))
+
+  (it "can be called as many times as there are new games"
+    (let [p1 (socket/connect @game-state "/new" "size=3&vs=remote")
+          p2 (socket/connect @game-state "/new" "size=3&vs=remote")
+          p3 (socket/connect @game-state "/join" "")
+          p4 (socket/connect @game-state "/join" "")
+          game-ids (group-by (partial get-id game-matcher) [p1 p2 p3 p4])]
+      (should= 2 (count game-ids))
+      (should= 2 (count (second (first game-ids))))
+      (should= 2 (count (second (second game-ids)))))
+    (should= "" (socket/connect @game-state "/join" ""))))
