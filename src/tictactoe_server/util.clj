@@ -1,16 +1,11 @@
 (ns tictactoe-server.util
-  (:require [webserver.response :as response]
-            [tictactoe-server.json :as json])
+  (:require [webserver.response :as response])
   (:import [me.hkgumbs.tictactoe.main.java.board SquareBoard Board$Mark]))
 
-(defn- respond-with-content [content content-type]
+(defn respond [content content-type]
   (let [headers {:Content-Type (str content-type "; charset=utf-8")
                  :Content-Length (count content)}]
     [(response/make 200 headers) content]))
-(defn respond [content]
-  (if (map? content)
-    (respond-with-content (json/encode content) "application/json")
-    (respond-with-content content "text/html")))
 
 (defn parse-int [number default]
   (try (Integer. ^String number) (catch Exception _ default)))
