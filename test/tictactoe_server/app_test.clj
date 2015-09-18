@@ -1,12 +1,16 @@
 (ns tictactoe-server.app-test
   (:require [speclj.core :refer :all]
             [tictactoe-server.app :as app]
-            [tictactoe-server.mock-socket :as socket]
-            [webserver.response :as response]))
+            [tictactoe-server.mock-socket :as socket]))
 
-(describe "Default route behavior"
-  (before (app/initialize))
-  (it "404s on non-existent file"
-    (should= (response/make 404) (socket/connect "/foobar" "")))
-  (it "doesn't 404 on stylesheet"
-    (should-not= (response/make 404) (socket/connect "style.css" ""))))
+(describe "/"
+  (it "responds with HTML"
+    (let [response (socket/connect {} "/" "")]
+      (should (.startsWith response "HTTP/1.1 200 OK"))
+      (should-contain #"Content-Type:( )?text/html" response))))
+
+(describe "Parameter mapping"
+  (it "re-assigns correctly"
+    (should=
+      {:parameters {:number 123 :string "hello"}}
+      (app/map-parameters {:parameters "number=123&string=hello"}))))

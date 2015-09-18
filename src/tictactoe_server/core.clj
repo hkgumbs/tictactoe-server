@@ -1,16 +1,18 @@
 (ns tictactoe-server.core
   (:gen-class)
-  (:require [webserver.app :as app]
-            [tictactoe-server.app :as ttt]
-            [tictactoe-server.root]
-            [tictactoe-server.new]
+  (:require [webserver.servlet :as servlet]
+            [tictactoe-server.app :as app]
+            [tictactoe-server.start]
             [tictactoe-server.move]
-            [tictactoe-server.util :as util]))
+            [tictactoe-server.storage]
+            [tictactoe-server.util :as util])
+  (:import tictactoe_server.storage.AtomStorage))
 
-(defn -main [& [port]]
-  (let [server (java.net.ServerSocket. (util/parse-int port 5000))]
-    (app/initialize)
-    (println "Serving Tic Tac Toe over HTTP...")
-    (while (not (.isClosed server))
-      (let [socket (.accept server)]
-        (app/relay ttt/handle socket)))))
+(def storage (AtomStorage. (atom {})))
+(defn handle-with-atom-storage [handler]
+  (fn [socket request] (handler socket (assoc request :storage storage))))
+
+(defn -main [& args]
+  (servlet/start
+    (concat ["-d" "assets"] args)
+    (handle-with-atom-storage app/handle)))
