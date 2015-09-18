@@ -14,11 +14,14 @@ function Game() {
         return 'player-id=' + self.playerId + '&game-id=' + self.gameId;
     }
 
+    function getStatus(json) {
+        return json['status'] ? json['status'] : 'waiting';
+    }
+
     function listenForStatusChange (json) {
-        self.status = json['status'];
-        if (self.status && self.status != 'waiting')
-            self.ui.update(json, move);
-        else
+        self.status = getStatus(json);
+        self.ui.update(self.status, json['board'], move);
+        if (self.status == 'waiting')
             setTimeout(500, function() {
                 var uri = 'status?' + getIdParameters();
                 $.getJSON(uri, listenForStatusChange)
@@ -36,6 +39,7 @@ function Game() {
         self.gameId = json['game-id'];
         self.playerId = json['player-id'];
         self.mark = json['mark'];
+        self.ui.create(self.mark);
         listenForStatusChange(json);
     }
 

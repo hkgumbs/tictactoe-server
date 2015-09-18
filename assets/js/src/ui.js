@@ -17,18 +17,36 @@ function UI() {
         return html;
     }
 
-    function update(json, callback) {
-        var board = json['board'];
+    function makeBoard(board, callback) {
         var size = Math.sqrt(board.length);
         var slots = makeSlots(board, size);
         $('[data-game]').html(slots);
         $('[data-position]').on('click', callback);
     }
 
-    function load(element) {
-        $(element).text('...');
+    function update(status, board, callback) {
+        if (board)
+            makeBoard(board, callback);
+        if (status.match(/X|O|tie/)) {
+            var team = status == 'tie' ? 'nobody' : status;
+            $('.message').text(team + ' won!');
+            $('.game').fadeOut();
+            $('.start-buttons').fadeIn();
+        }
+    }
+
+    function create(mark) {
+        $('.start-buttons').hide();
+        $('.message').text('You are X');
+        $('.game').empty().show();
+    }
+
+    function load(element, mark) {
+        $(element).text(mark);
+        $('.slots').attr('disabled', true);
     }
 
     this.update = update;
+    this.create = create;
     this.load = load;
 }
