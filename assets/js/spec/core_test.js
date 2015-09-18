@@ -1,4 +1,6 @@
 var requests = jasmine.Ajax.requests;
+var PID = 12345;
+var GID = 77777;
 
 function makeResponse(object) {
     return {
@@ -7,8 +9,9 @@ function makeResponse(object) {
     }
 }
 
-function makeStartResponse(playerId) {
-    return makeResponse({'player-id':playerId});
+function makeStartResponse(playerId, gameId, mark) {
+    return makeResponse({
+        'player-id':playerId, 'game-id': gameId, 'mark': mark});
 }
 
 function makeStatusResponse(board, status) {
@@ -16,7 +19,7 @@ function makeStatusResponse(board, status) {
 }
 
 describe('New game', function() {
-    function testButtonSetup(size, playerId) {
+    function testButtonSetup(size, playerId, gameId) {
         var board = "";
         for (var i = 0; i < size * size; i++)
             board += '-';
@@ -24,7 +27,8 @@ describe('New game', function() {
         appendSetFixtures('<input data-size="' + size + '"></input>');
         appendSetFixtures('<input data-vs="naive"></input>');
         game.start();
-        requests.mostRecent().respondWith(makeStartResponse(playerId));
+        var response = makeStartResponse(playerId, gameId, 'X');
+        requests.mostRecent().respondWith(response);
         requests.mostRecent().respondWith(makeStatusResponse(board, "ready"));
     }
 
@@ -34,15 +38,19 @@ describe('New game', function() {
     });
     afterEach(function() {jasmine.Ajax.uninstall()});
 
-    it('creates buttons based on JSON response', function() {
-        testButtonSetup(3, "12345");
+    it('creates buttons and data based on JSON response', function() {
+        testButtonSetup(3, PID, GID);
         expect($('[data-position]').length).toBe(9);
-        testButtonSetup(5, "12345");
+        testButtonSetup(5, PID, GID);
         expect($('[data-position]').length).toBe(25);
+
+        expect(game.gameId).toBe(GID);
+        expect(game.playerId).toBe(PID);
+        expect(game.mark).toBe('X');
     });
 
     it('creates buttons with proper links', function() {
-        testButtonSetup(3, "12345");
+        testButtonSetup(3, PID, GID);
         $('[data-position=1]').trigger('click');
         var mostRecent = requests.mostRecent();
         expect(mostRecent.url).toMatch(/^move\?/);
@@ -57,13 +65,14 @@ describe('New game', function() {
     });
 
     it('properly responds to successive games', function() {
-        testButtonSetup(3, "12345");
-        testButtonSetup(3, "23456");
+        testButtonSetup(3, PID, GID);
+        testButtonSetup(3, 23456, 66666);
 
         $('[data-position=1]').trigger('click');
         var firstNaiveMove = makeStatusResponse('XO-------', 'ready');
         requests.mostRecent().respondWith(firstNaiveMove);
-        expect(game.playerId).toBe("23456");
+        expect(game.playerId).toBe(23456);
+        expect(game.gameId).toBe(66666);
     });
 });
 
@@ -86,7 +95,8 @@ describe('Game against remote opponent', function() {
 
     it('keeps trying to connect when waiting', function() {
         game.join();
-        requests.mostRecent().respondWith(makeStartResponse(12345));
+        var response = makeStartResponse(PID, GID, 'X');
+        requests.mostRecent().respondWith(response);
         for (var i = 0; i < 5; i++) {
             var waitingResponse = makeStatusResponse('---------', 'waiting');
             requests.mostRecent().respondWith(waitingResponse);

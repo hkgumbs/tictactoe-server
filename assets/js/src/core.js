@@ -37,11 +37,12 @@ function Game() {
 
     function listenForStatusChange (json) {
         self.status = json['status'];
-        if (!json['status'] || json['status'] == 'waiting') {
+        if (self.status && self.status != 'waiting')
+            update(json);
+        else {
             var uri = '/status?player-id=' + self.playerId;
             $.getJSON(uri, listenForStatusChange)
-        } else
-            update(json);
+        }
     }
 
     function move() {
@@ -51,7 +52,9 @@ function Game() {
     }
 
     function create(json) {
+        self.gameId = json['game-id'];
         self.playerId = json['player-id'];
+        self.mark = json['mark'];
         listenForStatusChange(json);
     }
 
