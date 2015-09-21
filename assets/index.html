@@ -2,24 +2,28 @@
 <html>
     <head>
         <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+        <link href='https://fonts.googleapis.com/css?family=Roboto:100' rel='stylesheet' type='text/css'>
+        <link rel="stylesheet" href="style.css">
     </head>
     <body>
-        <button data-join>Join an ongoing game</button>
-        <br><br>-- or --<br><br>
-        <label for="size">Board size:</label>
-        <input type="number" name="size" min="1" value="3" data-size>
-        <br>
-        <label for="vs">Opponent:</label>
-        <select name="vs" data-vs>
-            <option value="naive">Naive CPU</option>
-            <option value="minimax">Unbeatable CPU</option>
-            <option value="local">Person next to you</option>
-            <option value="remote">Person far away</option>
-        </select>
-        <br>
-        <button name="new" data-new>Start new game</button>
-        <br><br>
-        <div class="game" data-game></div>
+        <div class="content">
+            <div class="start-buttons">
+                <button class="primary" data-join>Join an ongoing game</button>
+                <p>or choose opponenet and board size</p>
+                <div class="button-wrap">
+                    <select name="vs" data-vs>
+                        <option value="naive">Naive CPU</option>
+                        <option value="minimax">Unbeatable CPU</option>
+                        <option value="local">Person next to you</option>
+                        <option value="remote">Person far away</option>
+                    </select>
+                    <input type="number" min="1" max="7" value="3" data-size>
+                    <button class="secondary" data-new>Start new game</button>
+                </div>
+            </div>
+            <div class="game" data-game></div>
+        </div>
+        <p class="message"></p>
     </body>
     <script src="js/src/ui.js"></script>
     <script src="js/src/game.js"></script>

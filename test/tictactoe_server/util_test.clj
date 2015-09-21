@@ -5,17 +5,6 @@
   (:import [me.hkgumbs.tictactoe.main.java.board
             SquareBoard Board$Mark]))
 
-(describe "Standard 200 response"
-  (it "encodes as JSON correctly"
-    (should=
-      (let [body (json/encode {:hello "world"})]
-        (str
-          "HTTP/1.1 200 OK\r\n"
-          "Content-Type: application/json; charset=utf-8\r\n"
-          "Content-Length: " (count body) "\r\n\r\n"
-          body))
-      (apply str (util/respond {:hello "world"})))))
-
 (describe "Integer parsing"
   (it "defaults to default value"
     (should= 5000 (util/parse-int nil 5000))
