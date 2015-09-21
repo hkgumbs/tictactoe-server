@@ -12,18 +12,23 @@
 (defn- contains-necessary-parameters? [parameters]
   (every? (fn [[k f]] (f (k parameters))) necessary-parameters))
 
-(defn- get-start-game-state [{:keys [size vs]}]
+(defn- get-start-state [{:keys [size vs]}]
   (players/set-game-state
     {:vs vs
      :rules (DefaultRules. size)
      :board (SquareBoard. size)}))
 
-(defn- map-first-player-id [game-state]
-  {:player-id (first (:player-ids game-state))})
+(defn- get-public-fields [[game-id mark {:keys [player-ids]}]]
+  {:player-id (first player-ids) :game-id game-id :mark mark})
 (defmethod app/route "/new" [{parameters :parameters store :storage}]
   (if (contains-necessary-parameters? parameters)
-    (map-first-player-id
-      (storage/-update store :fake-id (get-start-game-state parameters)))))
+    (get-public-fields
+      (let [[game-id _ game-state :as fields] (get-start-state parameters)]
+        (storage/-update store game-id game-state) fields))))
 
-(defmethod app/route "/join" [{game-state :storage}]
-  (if-let [player-id (players/join)] {:player-id player-id}))
+(defmethod app/route "/join" [{store :storage}]
+  (let [all-states (storage/-list store)]
+    (if-let [[game-id mark player-id new-game-state] (players/join all-states)]
+      (do
+        (storage/-update store game-id new-game-state)
+        {:player-id player-id :game-id game-id :mark mark}))))
