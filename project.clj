@@ -1,6 +1,7 @@
 (defproject tictactoe-server "0.1.0-SNAPSHOT"
   :dependencies [[org.clojure/clojure "1.7.0"]
-                 [cheshire "5.5.0"]]
+                 [cheshire "5.5.0"]
+                 [org.clojars.hkgumbs/webserver "0.1.1-SNAPSHOT"]]
   :main ^:skip-aot tictactoe-server.core
   :target-path "target/%s"
   :resource-paths ["lib/*"]
