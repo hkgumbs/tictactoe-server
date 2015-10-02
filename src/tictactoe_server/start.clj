@@ -7,8 +7,10 @@
            [me.hkgumbs.tictactoe.main.java.rules DefaultRules]))
 
 (defn- positive-int? [i] (and (integer? i) (pos? i)))
+
 (def ^:private necessary-parameters
   {:size positive-int? :vs players/valid-type?})
+
 (defn- contains-necessary-parameters? [parameters]
   (every? (fn [[k f]] (f (k parameters))) necessary-parameters))
 
@@ -20,6 +22,7 @@
 
 (defn- get-public-fields [[game-id mark {:keys [player-ids]}]]
   {:player-id (first player-ids) :game-id game-id :mark mark})
+
 (defmethod app/route "/new" [{parameters :parameters store :storage}]
   (if (contains-necessary-parameters? parameters)
     (get-public-fields

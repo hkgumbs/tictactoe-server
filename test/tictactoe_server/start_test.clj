@@ -9,6 +9,7 @@
 (def ^:private mark-matcher #"\"mark\":\"(X|O)\"")
 (def ^:private player-matcher #"\"player-id\":(\d+)")
 (def ^:private game-matcher #"\"game-id\":(\d+)")
+
 (defn- get-id [matcher json-response]
   (Integer. ^String (second (re-find matcher json-response))))
 

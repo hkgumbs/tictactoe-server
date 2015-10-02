@@ -11,6 +11,7 @@
   (try (Integer. ^String number) (catch Exception _ default)))
 
 (defn- set-value [m k v] (assoc m (keyword k) (parse-int v v)))
+
 (defn parse-parameters [parameters]
   (if parameters
     (loop [p (.split parameters "&") result {}]

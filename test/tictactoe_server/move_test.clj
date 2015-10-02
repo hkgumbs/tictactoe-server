@@ -11,6 +11,7 @@
 (def default-game-id 77777)
 (def first-player-id 12345)
 (def second-player-id 67890)
+
 (defn- get-parameters
   ([position] (get-parameters position first-player-id))
   ([position player-id]
@@ -19,6 +20,7 @@
 (def ^:private rules ^Rules (DefaultRules. 3))
 (def ^:private storage-template
   {:board (SquareBoard. 3) :rules rules :status "ready" :turn Board$Mark/X})
+
 (defn- initialize [game-state]
   (socket/store default-game-id (into storage-template game-state)))
 

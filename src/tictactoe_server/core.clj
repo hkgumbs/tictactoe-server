@@ -9,6 +9,7 @@
   (:import tictactoe_server.storage.AtomStorage))
 
 (def storage (AtomStorage. (atom {})))
+
 (defn handle-with-atom-storage [handler]
   (fn [socket request] (handler socket (assoc request :storage storage))))
 
