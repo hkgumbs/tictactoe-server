@@ -1,5 +1,5 @@
-(ns tictactoe-server.players
-  (:require [tictactoe-server.storage :as storage])
+(ns tictactoe-server.endpoints.game
+  (:require [tictactoe-server.storage.protocol :as storage])
   (:import [me.hkgumbs.tictactoe.main.java.board Board Board$Mark]
            [me.hkgumbs.tictactoe.main.java.rules Rules]
            [me.hkgumbs.tictactoe.main.java.player

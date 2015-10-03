@@ -1,4 +1,4 @@
-(ns tictactoe-server.util
+(ns tictactoe-server.components.util
   (:require [webserver.response :as response])
   (:import [me.hkgumbs.tictactoe.main.java.board SquareBoard Board$Mark]))
 

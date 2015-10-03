@@ -1,6 +1,6 @@
-(ns tictactoe-server.move-test (:require [speclj.core :refer :all]
-            [tictactoe-server.storage]
-            [tictactoe-server.move]
+(ns tictactoe-server.endpoints.move-test
+  (:require [speclj.core :refer :all]
+            [tictactoe-server.endpoints.move]
             [tictactoe-server.mock-socket :as socket])
   (:import [me.hkgumbs.tictactoe.main.java.board SquareBoard Board$Mark]
            [me.hkgumbs.tictactoe.main.java.rules DefaultRules Rules]

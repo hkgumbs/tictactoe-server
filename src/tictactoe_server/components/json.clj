@@ -1,4 +1,4 @@
-(ns tictactoe-server.json
+(ns tictactoe-server.components.json
   (:require [cheshire.core :as cheshire]
             [cheshire.generate :as generate])
   (:import [me.hkgumbs.tictactoe.main.java.board Board Board$Mark]))

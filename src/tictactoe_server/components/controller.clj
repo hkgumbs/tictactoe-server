@@ -1,10 +1,8 @@
-(ns tictactoe-server.app
-  (:require [tictactoe-server.util :as util]
-            [tictactoe-server.json :as json]
+(ns tictactoe-server.components.controller
+  (:require [tictactoe-server.router.app :as app]
+            [tictactoe-server.components.util :as util]
+            [tictactoe-server.components.json :as json]
             [clojure.java.io :as io]))
-
-(defmulti route :uri)
-(defmethod route :default [_])
 
 (def ^:private static
   {"/" ["index.html" "text/html"]
@@ -23,7 +21,7 @@
   (doseq [r response] (io/copy r output-stream)) true)
 
 (defn- get-response [{uri :uri :as request}]
-  (if-let [json-response (route (map-parameters request))]
+  (if-let [json-response (app/route (map-parameters request))]
     [(json/encode json-response) "application/json"] (get-static uri)))
 
 (defn handle [socket request]

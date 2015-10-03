@@ -1,12 +1,11 @@
 (ns tictactoe-server.core
   (:gen-class)
   (:require [webserver.servlet :as servlet]
-            [tictactoe-server.app :as app]
-            [tictactoe-server.start]
-            [tictactoe-server.move]
-            [tictactoe-server.storage]
-            [tictactoe-server.util :as util])
-  (:import tictactoe_server.storage.AtomStorage))
+            [tictactoe-server.components.controller :as controller]
+            [tictactoe-server.endpoints.start]
+            [tictactoe-server.endpoints.move]
+            [tictactoe-server.storage.atom-storage])
+  (:import tictactoe_server.storage.atom_storage.AtomStorage))
 
 (def storage (AtomStorage. (atom {})))
 
@@ -14,6 +13,4 @@
   (fn [socket request] (handler socket (assoc request :storage storage))))
 
 (defn -main [& args]
-  (servlet/start
-    (concat ["-d" "assets"] args)
-    (handle-with-atom-storage app/handle)))
+  (servlet/start args (handle-with-atom-storage controller/handle)))

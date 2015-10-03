@@ -1,7 +1,7 @@
-(ns tictactoe-server.util-test
+(ns tictactoe-server.components.util-test
   (:require [speclj.core :refer :all]
-            [tictactoe-server.util :as util]
-            [tictactoe-server.json :as json])
+            [tictactoe-server.components.util :as util]
+            [tictactoe-server.components.json :as json])
   (:import [me.hkgumbs.tictactoe.main.java.board
             SquareBoard Board$Mark]))
 

@@ -1,6 +1,6 @@
-(ns tictactoe-server.app-test
+(ns tictactoe-server.components.controller-test
   (:require [speclj.core :refer :all]
-            [tictactoe-server.app :as app]
+            [tictactoe-server.components.controller :as controller]
             [tictactoe-server.mock-socket :as socket]))
 
 (defn- validate-static-response [uri matcher]
@@ -28,4 +28,4 @@
   (it "re-assigns correctly"
     (should=
       {:parameters {:number 123 :string "hello"}}
-      (app/map-parameters {:parameters "number=123&string=hello"}))))
+      (controller/map-parameters {:parameters "number=123&string=hello"}))))

@@ -1,8 +1,8 @@
-(ns tictactoe-server.move
+(ns tictactoe-server.endpoints.move
   (:require [webserver.response :as response]
-            [tictactoe-server.app :as app]
-            [tictactoe-server.storage :as storage]
-            [tictactoe-server.players :as players])
+            [tictactoe-server.router.app :as app]
+            [tictactoe-server.storage.protocol :as storage]
+            [tictactoe-server.endpoints.game :as game])
   (:import [me.hkgumbs.tictactoe.main.java.rules Rules]))
 
 (defn- get-game-state [{store :storage {game-id :game-id} :parameters}]
@@ -40,7 +40,7 @@
     (.validateMove ^Rules rules board position)))
 
 (defn- move [{:keys [position]} game-state]
-  (players/make-moves game-state position))
+  (game/make-moves game-state position))
 
 (defmethod app/route "/move" [request] (process valid-move? move request))
 
