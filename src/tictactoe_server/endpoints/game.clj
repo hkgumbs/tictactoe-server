@@ -1,5 +1,5 @@
-(ns tictactoe-server.players
-  (:require [tictactoe-server.storage :as storage])
+(ns tictactoe-server.endpoints.game
+  (:require [tictactoe-server.storage.protocol :as storage])
   (:import [me.hkgumbs.tictactoe.main.java.board Board Board$Mark]
            [me.hkgumbs.tictactoe.main.java.rules Rules]
            [me.hkgumbs.tictactoe.main.java.player
@@ -8,6 +8,7 @@
 (def ^:private marks [Board$Mark/X Board$Mark/O])
 
 (def ^:private types ["local" "remote" "minimax" "naive"])
+
 (defn valid-type? [vs] (.contains types vs))
 
 (defn- get-cpu [{:keys [vs rules]}]
@@ -17,7 +18,9 @@
   (Integer. ^String (apply str (repeatedly 5 #(rand-int 10)))))
 
 (defn- get-local-ids [] [(get-unique-id)])
+
 (defn- get-remote-ids [] [(get-unique-id) (get-unique-id)])
+
 (defn- get-player-ids [{vs :vs}]
   (if (= vs "remote") (get-remote-ids) (get-local-ids)))
 
@@ -47,6 +50,7 @@
 
 (defn- find-available [game-states]
   (first (filter #(:available-id (second %)) game-states)))
+
 (defn join [game-states]
   (if-let [[game-id game-state] (find-available game-states)]
     [game-id (second marks)

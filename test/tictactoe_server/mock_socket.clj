@@ -1,9 +1,9 @@
 (ns tictactoe-server.mock-socket
   (:require [speclj.core :refer :all]
-            [tictactoe-server.app :as app]
-            [tictactoe-server.json :as json]
-            [tictactoe-server.storage])
-  (:import tictactoe_server.storage.AtomStorage))
+            [tictactoe-server.components.controller :as controller]
+            [tictactoe-server.components.json :as json]
+            [tictactoe-server.storage.atom_storage])
+  (:import tictactoe_server.storage.atom_storage.AtomStorage))
 
 (def ^:private template {:method "GET" :version "HTTP/1.1"})
 
@@ -18,7 +18,7 @@
   (let [socket (make "")
          args {:storage storage :uri uri :parameters parameters}
          request (into template args)]
-     (app/handle socket request)
+     (controller/handle socket request)
      (str (.getOutputStream socket))))
 
 (defn- includes-parameters [json-response parameters]

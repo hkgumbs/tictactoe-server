@@ -1,14 +1,14 @@
-(ns tictactoe-server.start-test
+(ns tictactoe-server.endpoints.start-test
   (:require [speclj.core :refer :all]
-            [tictactoe-server.app]
-            [tictactoe-server.start]
-            [tictactoe-server.storage :as storage]
+            [tictactoe-server.endpoints.start]
+            [tictactoe-server.storage.protocol :as storage]
             [tictactoe-server.mock-socket :as socket])
   (:import [me.hkgumbs.tictactoe.main.java.board SquareBoard]))
 
 (def ^:private mark-matcher #"\"mark\":\"(X|O)\"")
 (def ^:private player-matcher #"\"player-id\":(\d+)")
 (def ^:private game-matcher #"\"game-id\":(\d+)")
+
 (defn- get-id [matcher json-response]
   (Integer. ^String (second (re-find matcher json-response))))
 
